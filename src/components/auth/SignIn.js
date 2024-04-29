@@ -28,8 +28,6 @@ export default function SignIn({ onLoginSuccess }) {
 	}
 
 	function handleInput(e) {
-		// const name = e.target.name;
-
 		switch (e.target.type) {
 			case "email":
 				setEmail(e.target.value);

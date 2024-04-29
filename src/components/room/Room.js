@@ -7,7 +7,14 @@ export default function Room() {
 	const [inputValue, setInputValue] = useState("");
 
 	useEffect(() => {
-		localStorage.setItem("id", JSON.stringify(room));
+		const data = window.localStorage.getItem("room");
+		console.log("room: ", room);
+		setRoom(JSON.parse(data));
+	}, []);
+
+	useEffect(() => {
+		window.localStorage.setItem("room", JSON.stringify(room));
+		// console.log("Room: ", room);
 	}, [room]);
 
 	const createRoom = () => {
@@ -27,30 +34,33 @@ export default function Room() {
 	return (
 		<>
 			<div className="text-center">Meeting Room List</div>
-			<div className="text-center">
-				<li className="list-none" key={room.id}>
-					{room.map((room) => {
-						return <ul key={room.id}>{room.room}</ul>;
-					})}
-				</li>
-			</div>
-			<div className="text-center">
-				{toggleCreateRoom ? (
-					<div>
-						<input
-							className="border"
-							value={inputValue}
-							onChange={(e) => setInputValue(e.target.value)}
-						/>
-						<button className="border" onClick={addRoom}>
-							Add room
+
+			<div className="flex flex-row justify-center">
+				<div>
+					<li className="list-none" key={room.id}>
+						{room.map((room) => {
+							return <ul key={room.id}>{room.room}</ul>;
+						})}
+					</li>
+				</div>
+				<div>
+					{toggleCreateRoom ? (
+						<div>
+							<input
+								className="border"
+								value={inputValue}
+								onChange={(e) => setInputValue(e.target.value)}
+							/>
+							<button className="border" onClick={addRoom}>
+								Add room
+							</button>
+						</div>
+					) : (
+						<button className="border" onClick={createRoom}>
+							Create more room
 						</button>
-					</div>
-				) : (
-					<button className="border" onClick={createRoom}>
-						Create more room
-					</button>
-				)}
+					)}
+				</div>
 			</div>
 		</>
 	);

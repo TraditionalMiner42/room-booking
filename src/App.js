@@ -1,9 +1,4 @@
-import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-	Outlet,
-} from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import SignIn from "./components/auth/SignIn";
 import SignUp from "./components/auth/SignUp";
@@ -25,29 +20,24 @@ function App() {
 	return (
 		<div className="app-container">
 			<Routes>
-				{isLoggedIn ? (
-					<Route
-						element={
-							<>
-								<Navbar />
-								<Outlet />
-							</>
-						}
-					>
-						<Route path="/" element={<LandingPage />} />
-						<Route path="/rooms" element={<Room />} />
-					</Route>
-				) : (
-					<>
-						<Route
-							path="/signin"
-							element={
-								<SignIn onLoginSuccess={handleLoginSuccess} />
-							}
-						/>
-						<Route path="/signup" element={<SignUp />} />
-					</>
-				)}
+				{/* <Route path="/" element={<LandingPage />} /> */}
+
+				<Route
+					element={
+						<>
+							<Navbar />
+							<Outlet />
+						</>
+					}
+				>
+					<Route path="/" element={<LandingPage />} />
+					<Route path="/rooms" element={<Room />} />
+				</Route>
+				<Route
+					path="/signin"
+					element={<SignIn onLoginSuccess={handleLoginSuccess} />}
+				/>
+				<Route path="/signup" element={<SignUp />} />
 			</Routes>
 		</div>
 	);
