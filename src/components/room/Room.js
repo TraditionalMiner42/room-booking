@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BookingForm from "./BookingForm";
 
 export default function Room() {
 	const [roomId, setRoomId] = useState(0);
@@ -8,14 +9,9 @@ export default function Room() {
 
 	useEffect(() => {
 		const data = window.localStorage.getItem("room");
-		console.log("room: ", room);
+		// console.log("room: ", room);
 		setRoom(JSON.parse(data));
 	}, []);
-
-	useEffect(() => {
-		window.localStorage.setItem("room", JSON.stringify(room));
-		// console.log("Room: ", room);
-	}, [room]);
 
 	const createRoom = () => {
 		setToggleCreateRoom(!toggleCreateRoom);
@@ -24,7 +20,10 @@ export default function Room() {
 	const addRoom = () => {
 		if (inputValue !== "") {
 			setRoom((prev) => {
-				return [...prev, { id: roomId, room: inputValue }];
+				prev = prev || [];
+				const newRoom = [...prev, { id: roomId, room: inputValue }];
+				window.localStorage.setItem("room", JSON.stringify(newRoom)); // Update localStorage with the new value
+				return newRoom; // Update the state with the new value
 			});
 			setRoomId(roomId + 1);
 			setInputValue("");
@@ -33,13 +32,14 @@ export default function Room() {
 
 	return (
 		<>
+			{console.log("room: ", room)}
 			<div className="text-center">Meeting Room List</div>
 
 			<div className="flex flex-row justify-center">
 				<div>
-					<li className="list-none" key={room.id}>
-						{room.map((room) => {
-							return <ul key={room.id}>{room.room}</ul>;
+					<li className="list-none" key={room?.id}>
+						{room?.map((room) => {
+							return <ul key={room?.id}>{room.room}</ul>;
 						})}
 					</li>
 				</div>
@@ -61,6 +61,9 @@ export default function Room() {
 						</button>
 					)}
 				</div>
+			</div>
+			<div>
+				<BookingForm room={room} />
 			</div>
 		</>
 	);

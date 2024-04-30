@@ -31,6 +31,12 @@
   .nav-item {
       @apply px-4 py-2 mx-2 my-1
   }
+  .form-item {
+      @apply flex flex-col p-2 m-1 
+  }
+  .input-item {
+      @apply border rounded-md w-3/4 p-1 my-1
+  }
 }
 
 .App {
