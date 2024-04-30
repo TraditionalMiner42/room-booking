@@ -6,8 +6,8 @@ function Navbar() {
 			path: "/",
 			label: "Home",
 		},
-		{ path: "/rooms", label: "Room" },
-		{ path: "/booking", label: "Booking" },
+		{ path: "/rooms", label: "Book a Room" },
+		{ path: "/booking", label: "My Booking" },
 	];
 
 	return (

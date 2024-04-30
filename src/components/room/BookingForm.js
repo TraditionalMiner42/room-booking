@@ -43,7 +43,7 @@ export default function BookingForm({ room }) {
 		const storedData = localStorage.getItem("meetingData");
 		if (storedData) {
 			setFormData(JSON.parse(storedData));
-			console.log(formData);
+			console.log("Booked room: ", formData.room);
 		}
 	}, []);
 
@@ -85,7 +85,7 @@ export default function BookingForm({ room }) {
 					</div>
 					<div className="form-item">
 						<label>Booking Date</label>
-						<div className="flex">
+						<div className="flex flex-col lg:flex-row lg:items-center">
 							<input
 								className="input-item"
 								placeholder="Start date"
@@ -94,7 +94,7 @@ export default function BookingForm({ room }) {
 								value={formData.dateFrom}
 								onChange={handleChange}
 							/>
-							to
+							<span className="flex items-center mx-2">to</span>
 							<input
 								className="input-item"
 								placeholder="End date"
@@ -107,7 +107,7 @@ export default function BookingForm({ room }) {
 					</div>
 					<div className="form-item">
 						<label>Booking Time</label>
-						<div className="flex">
+						<div className="flex flex-col lg:flex-row lg:items-center">
 							<input
 								className="input-item"
 								placeholder="Start time"
@@ -116,7 +116,7 @@ export default function BookingForm({ room }) {
 								value={formData.dateFrom}
 								onChange={handleChange}
 							/>
-							to
+							<span className="flex items-center mx-2">to</span>
 							<input
 								className="input-item"
 								placeholder="End time"
@@ -129,15 +129,17 @@ export default function BookingForm({ room }) {
 					</div>
 					<div className="form-item">
 						<label>Select Room</label>
-						<select className="input-item">
+						<select
+							className="input-item"
+							onChange={handleChange}
+							value={formData.room}
+							name="room"
+						>
 							<option value="" selected disabled hidden>
 								Choose room
 							</option>
 							{room?.map((room) => (
-								<option
-									value={formData.room}
-									onChange={handleChange}
-								>
+								<option key={room.id} value={room.room}>
 									{room.room}
 								</option>
 							))}
