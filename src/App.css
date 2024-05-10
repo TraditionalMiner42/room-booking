@@ -6,6 +6,9 @@
     /* .app-container {
       @apply p-10 m-4
     } */
+    * {
+        @apply tracking-wider
+    }
 }
 
 @layer components {

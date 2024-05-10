@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import BookingForm from "./BookingForm";
+import BookingForm from "./BookingForm.js";
 
 export default function Room() {
 	const [roomId, setRoomId] = useState(0);

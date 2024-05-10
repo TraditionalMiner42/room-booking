@@ -1,13 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import App from "./App.js";
 import { BrowserRouter, HashRouter } from "react-router-dom";
+import { UserContext, UserProvider } from "./components/UserContext.js";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
 	<React.StrictMode>
 		<BrowserRouter>
-			<App />
+			<UserProvider>
+				<App />
+			</UserProvider>
 		</BrowserRouter>
 	</React.StrictMode>
 );

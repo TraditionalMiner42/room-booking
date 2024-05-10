@@ -1,11 +1,11 @@
 import { Routes, Route, Outlet } from "react-router-dom";
-import LandingPage from "./components/LandingPage";
-import SignIn from "./components/auth/SignIn";
-import SignUp from "./components/auth/SignUp";
+import LandingPage from "./components/LandingPage.js";
+import SignIn from "./components/auth/SignIn.js";
+import SignUp from "./components/auth/SignUp.js";
 import "./App.css";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar.js";
 import { useEffect, useState } from "react";
-import Room from "./components/room/Room";
+import Room from "./components/room/Room.js";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,10 +34,10 @@ function App() {
 					<Route path="/rooms" element={<Room />} />
 				</Route>
 				<Route
-					path="/signin"
+					path="/users/signin"
 					element={<SignIn onLoginSuccess={handleLoginSuccess} />}
 				/>
-				<Route path="/signup" element={<SignUp />} />
+				<Route path="/users/signup" element={<SignUp />} />
 			</Routes>
 		</div>
 	);

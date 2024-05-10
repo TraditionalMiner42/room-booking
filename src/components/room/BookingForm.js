@@ -1,33 +1,26 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import users from "../../users/users.js";
+import { UserContext } from "../UserContext.js";
 
 export default function BookingForm({ room }) {
-	const [formData, setFormData] = useState({
+	const { foundUser } = useContext(UserContext);
+
+	const initialFormData = {
 		meetingTopic: "",
 		name: "",
-		dateFrom: "",
-		dateTo: "",
-		bookingTimeFrom: "",
-		bookingTimeTo: "",
+		dateStart: "",
+		timeStart: "",
+		timeEnd: "",
 		room: "",
 		participants: "",
-	});
+	};
+
+	const [formData, setFormData] = useState(initialFormData);
 
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-
-		// Additional processing or validation can be done here
-		const {
-			meetingTopic,
-			name,
-			dateFrom,
-			dateTo,
-			bookingTimeFrom,
-			bookingTimeTo,
-			room,
-			participants,
-		} = formData;
 
 		// Send data to server (optional)
 		// ... code for sending data to server using fetch or an API library
@@ -35,8 +28,23 @@ export default function BookingForm({ room }) {
 		// Store data in localStorage
 
 		localStorage.setItem("meetingData", JSON.stringify(formData));
-
 		setIsSubmitted(true); // Update state for success message or redirection
+		setFormData(initialFormData);
+
+		// Update users array with the formData
+		const updatedUsers = users.map((user) => {
+			if (foundUser.email === user.email) {
+				const updatedBookedUser = {
+					...user,
+					booking: [...(user.booking || []), formData],
+				};
+				// If the user's email matches the formData's email, add the formData to the user
+				return updatedBookedUser;
+			}
+			return user;
+		});
+
+		console.log("Updated form data: ", updatedUsers);
 	};
 
 	useEffect(() => {
@@ -48,7 +56,6 @@ export default function BookingForm({ room }) {
 	}, []);
 
 	const handleChange = (event) => {
-		// event.preventDefault();
 		const { name, value } = event.target;
 		// if (value !== "")
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -70,6 +77,7 @@ export default function BookingForm({ room }) {
 							name="meetingTopic"
 							value={formData.meetingTopic}
 							onChange={handleChange}
+							required
 						/>
 					</div>
 					<div className="form-item">
@@ -81,6 +89,7 @@ export default function BookingForm({ room }) {
 							name="name"
 							value={formData.name}
 							onChange={handleChange}
+							required
 						/>
 					</div>
 					<div className="form-item">
@@ -91,17 +100,9 @@ export default function BookingForm({ room }) {
 								placeholder="Start date"
 								type="date"
 								name="dateStart"
-								value={formData.dateFrom}
+								value={formData.dateStart}
 								onChange={handleChange}
-							/>
-							<span className="flex items-center mx-2">to</span>
-							<input
-								className="input-item"
-								placeholder="End date"
-								type="date"
-								name="dateEnd"
-								value={formData.dateTo}
-								onChange={handleChange}
+								required
 							/>
 						</div>
 					</div>
@@ -113,8 +114,9 @@ export default function BookingForm({ room }) {
 								placeholder="Start time"
 								type="time"
 								name="timeStart"
-								value={formData.dateFrom}
+								value={formData.timeStart}
 								onChange={handleChange}
+								required
 							/>
 							<span className="flex items-center mx-2">to</span>
 							<input
@@ -122,8 +124,9 @@ export default function BookingForm({ room }) {
 								placeholder="End time"
 								type="time"
 								name="timeEnd"
-								value={formData.dateTo}
+								value={formData.timeEnd}
 								onChange={handleChange}
+								required
 							/>
 						</div>
 					</div>
@@ -134,8 +137,10 @@ export default function BookingForm({ room }) {
 							onChange={handleChange}
 							value={formData.room}
 							name="room"
+							selected
+							required
 						>
-							<option value="" selected disabled hidden>
+							<option value="" disabled hidden>
 								Choose room
 							</option>
 							{room?.map((room) => (
@@ -154,6 +159,7 @@ export default function BookingForm({ room }) {
 							name="participants"
 							value={formData.participants}
 							onChange={handleChange}
+							required
 						/>
 					</div>
 					<div className="form-item">
