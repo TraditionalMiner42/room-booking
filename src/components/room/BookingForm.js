@@ -1,9 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import users from "../../users/users.js";
-import { UserContext } from "../UserContext.js";
+import axiosInstance from "../../axiosInstance.js";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
-export default function BookingForm({ room }) {
-	const { foundUser } = useContext(UserContext);
+export default function BookingForm({ userToken }) {
+	// const { foundUser } = useContext(UserContext);
+
+	const navigate = useNavigate();
 
 	const initialFormData = {
 		meetingTopic: "",
@@ -16,48 +20,76 @@ export default function BookingForm({ room }) {
 	};
 
 	const [formData, setFormData] = useState(initialFormData);
-
+	const [rooms, setRooms] = useState([]);
+	const [username, setUsername] = useState("");
 	const [isSubmitted, setIsSubmitted] = useState(false);
+
+	useEffect(() => {
+		if (userToken) {
+			const decoded = jwtDecode(userToken.token);
+			setUsername(decoded.username);
+
+			const storedData = localStorage.getItem("meetingData");
+			if (storedData) {
+				setFormData(JSON.parse(storedData));
+				console.log("Booked room: ", formData.room);
+			}
+		}
+
+		const fetchRooms = async () => {
+			try {
+				const response = await axiosInstance.get("/users/get_rooms");
+				console.log("Rooms response:", response.data.rooms); // Check response data
+				setRooms(response.data.rooms);
+			} catch (error) {
+				console.error("Error fetching rooms:", error);
+			}
+		};
+
+		fetchRooms();
+		console.log("Meeting rooms: ", rooms);
+	}, []);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-
-		// Send data to server (optional)
-		// ... code for sending data to server using fetch or an API library
-
-		// Store data in localStorage
-
-		localStorage.setItem("meetingData", JSON.stringify(formData));
-		setIsSubmitted(true); // Update state for success message or redirection
-		setFormData(initialFormData);
-
-		// Update users array with the formData
-		const updatedUsers = users.map((user) => {
-			if (foundUser.email === user.email) {
-				const updatedBookedUser = {
-					...user,
-					booking: [...(user.booking || []), formData],
-				};
-				// If the user's email matches the formData's email, add the formData to the user
-				return updatedBookedUser;
-			}
-			return user;
-		});
-
-		console.log("Updated form data: ", updatedUsers);
-	};
-
-	useEffect(() => {
-		const storedData = localStorage.getItem("meetingData");
-		if (storedData) {
-			setFormData(JSON.parse(storedData));
-			console.log("Booked room: ", formData.room);
+		console.log(userToken);
+		try {
+			axiosInstance
+				.post("/users/rooms", {
+					formData,
+				})
+				.then((response) => {
+					console.log(response.data);
+					const { success, userId, formData } = response.data;
+					if (success) {
+						localStorage.setItem(
+							"meetingData",
+							JSON.stringify(formData)
+						);
+						setIsSubmitted(true); // Update state for success message or redirection
+						setFormData(initialFormData);
+					}
+				})
+				.catch((error) => {
+					if (error.response.status === 403) {
+						localStorage.removeItem("accessToken");
+						navigate("/users/signin");
+					} else if (error.response.status === 409) {
+						alert(error.response.data.message);
+					} else {
+						console.log(error);
+					}
+				});
+		} catch (error) {
+			console.log(error);
 		}
-	}, []);
+
+		console.log("Updated user data: ", userToken);
+		console.log("Updated form data: ", formData);
+	};
 
 	const handleChange = (event) => {
 		const { name, value } = event.target;
-		// if (value !== "")
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 
@@ -87,9 +119,10 @@ export default function BookingForm({ room }) {
 							placeholder="name"
 							type="text"
 							name="name"
-							value={formData.name}
+							value={username}
 							onChange={handleChange}
 							required
+							disabled
 						/>
 					</div>
 					<div className="form-item">
@@ -116,6 +149,8 @@ export default function BookingForm({ room }) {
 								name="timeStart"
 								value={formData.timeStart}
 								onChange={handleChange}
+								min="09:00"
+								max="18:00"
 								required
 							/>
 							<span className="flex items-center mx-2">to</span>
@@ -143,9 +178,12 @@ export default function BookingForm({ room }) {
 							<option value="" disabled hidden>
 								Choose room
 							</option>
-							{room?.map((room) => (
-								<option key={room.id} value={room.room}>
-									{room.room}
+							{rooms?.map((room) => (
+								<option
+									key={room.room_id}
+									value={room.room_name}
+								>
+									{room.room_name}
 								</option>
 							))}
 						</select>

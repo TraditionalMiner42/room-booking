@@ -1,81 +1,60 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import users from "../../users/users.js";
+import { useAuth } from "../context/AuthContext.js";
 import axios from "axios";
-import { UserContext } from "../UserContext.js";
 
-export default function SignIn({ onLoginSuccess }) {
-	const [email, setEmail] = useState("");
+export default function SignIn({ setUserToken }) {
+	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	// const [user, setUser] = useState(null);
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
+	const { login } = useAuth();
 
-	const { foundUser, setFoundUser, users } = useContext(UserContext);
+	useEffect(() => console.log("error: ", error));
 
-	useEffect(() => {
-		setFoundUser(users.find((user) => user.email === email));
-	}, [email, setFoundUser, users]);
-
-	function handleSubmitEvent(e) {
+	const handleSubmitEvent = (e) => {
 		e.preventDefault();
 
-		// const foundEmail = users.find((user) => user.email === email);
-
-		// console.log("found user: ", foundUser);
-
-		// setFoundUser(foundEmail);
-
-		// if (
-		// 	foundUser &&
-		// 	foundUser.email === email &&
-		// 	password === "mockPassword"
-		// ) {
-		// 	// Mock successful login (replace with actual login logic)
-		// 	onLoginSuccess(foundUser);
-		// 	document.cookie = `email=${foundUser.email}; path=/`;
-		// 	setError("");
-		// 	navigate("/");
-		// } else {
-		// 	setError("Invalid email or password");
-		// }
-
-		try {
-			axios
-				.post("http://localhost:4000/users/signin", {
-					email,
-					password,
-				})
-				.then((response) => {
-					// console.log(response.data);
-					const { success, user } = response.data;
-					if (success) {
-						// Set session information as cookies
-						document.cookie = `user=${JSON.stringify(
-							user
-						)}; Secure; HttpOnly`;
-						// Redirect or perform any other actions
-						navigate("/");
-					} else {
-						setError("Invalid email or password");
-					}
-				});
-		} catch (error) {
-			console.log(error);
-		}
-	}
-
-	function handleInput(e) {
-		switch (e.target.type) {
-			case "email":
-				setEmail(e.target.value);
-				break;
-			case "password":
-				setPassword(e.target.value);
-				break;
-			default:
-				console.log("No input type");
-		}
-	}
+		axios
+			.post("http://localhost:4000/users/signin", {
+				username,
+				password,
+			})
+			.then((response) => {
+				// console.log(response.data);
+				const { success, username } = response.data;
+				if (success) {
+					// Set session information as cookies
+					// document.cookie = `user=${JSON.stringify(
+					// 	user
+					// )}; Secure; HttpOnly`;
+					// Redirect or perform any other actions
+					localStorage.setItem(
+						"accessToken",
+						response.data.jwtAccessToken
+					);
+					login();
+					setUserToken({
+						token: localStorage.getItem("accessToken"),
+					});
+					console.log(
+						`access token: ${response.data.jwtAccessToken}`
+					);
+					navigate("/");
+				} else {
+					setError("Invalid username or password");
+				}
+			})
+			.catch((error) => {
+				if (error.response?.status === 500) {
+					console.log(
+						`Request failed with status code ${error.response?.status}`
+					);
+					alert(error.response.data.message);
+				}
+			});
+	};
 
 	return (
 		<>
@@ -89,14 +68,15 @@ export default function SignIn({ onLoginSuccess }) {
 			>
 				<div className="flex flex-col text-left p-2 mx-2 my-2">
 					<label className="login-label" htmlFor="email">
-						Email
+						Username
 					</label>
 					<input
 						className="login-input"
-						type="email"
-						name="email"
-						placeholder="Enter your email"
-						onChange={handleInput}
+						type="text"
+						name="username"
+						placeholder="Enter your username"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
 						required
 					/>
 				</div>
@@ -110,7 +90,8 @@ export default function SignIn({ onLoginSuccess }) {
 						name="password"
 						placeholder="Enter your password"
 						minLength="8"
-						onChange={handleInput}
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
 						required
 					/>
 				</div>

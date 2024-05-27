@@ -1,70 +1,109 @@
 import { useEffect, useState } from "react";
 import BookingForm from "./BookingForm.js";
+import { Calendar, Badge } from "antd";
+import styled from "styled-components";
+import axiosInstance from "../../axiosInstance.js";
+import moment from "moment";
 
-export default function Room() {
-	const [roomId, setRoomId] = useState(0);
-	const [room, setRoom] = useState([]);
-	const [toggleCreateRoom, setToggleCreateRoom] = useState(false);
-	const [inputValue, setInputValue] = useState("");
+// const StyledCalendarContainer = styled.div`
+// 	display: flex;
+// 	justify-content: center;
+// 	align-items: center;
+// 	// height: 100vh; /* Set container height for vertical centering */
+// `;
+
+// const StyledCalendar = styled(Calendar)`
+// 	margin: 0 auto;
+// 	width: 1000px; /* Set calendar width */
+// 	border: 1px solid #ddd;
+// 	border-radius: 5px;
+
+// 	.react-calendar__month-view {
+// 		background-color: #f5f5f5;
+// 	}
+
+// 	.react-calendar__tile {
+// 		text-align: center;
+// 		display: flex;
+// 		align-items: center;
+// 		justify-content: center;
+// 		padding: 20px;
+// 		cursor: pointer;
+// 	}
+
+// 	.react-calendar__tile--active {
+// 		background-color: #333;
+// 		color: #fff;
+// 	}
+
+// 	/* Target other calendar elements as needed */
+// `;
+
+export default function Room({ userToken }) {
+	const [bookings, setBookings] = useState([]);
 
 	useEffect(() => {
-		const data = window.localStorage.getItem("room");
-		// console.log("room: ", room);
-		setRoom(JSON.parse(data));
+		const fetchBookings = async () => {
+			try {
+				const response = await axiosInstance.get("/users/get_bookings");
+				console.log(response.data.bookings);
+				setBookings(response.data.bookings);
+			} catch (error) {
+				console.error("Error fetching bookings:", error);
+			}
+		};
+
+		fetchBookings();
 	}, []);
 
-	const createRoom = () => {
-		setToggleCreateRoom(!toggleCreateRoom);
+	const getListData = (value) => {
+		let listData = [];
+		const formattedDate = value.format("YYYY-MM-DD");
+
+		bookings.forEach((booking) => {
+			const bookingDate = moment(booking.booking_date).format(
+				"YYYY-MM-DD"
+			);
+			if (bookingDate === formattedDate) {
+				let badgeColor;
+				console.log(booking.selected_room);
+				if (booking.selected_room === 1) {
+					badgeColor = "#52c41a"; // Green
+				} else if (booking.selected_room === 2) {
+					badgeColor = "#faad14"; // Orange
+				} else if (booking.selected_room === 3) {
+					badgeColor = "#f5222d"; // Red
+				} else {
+					badgeColor = "#d9d9d9"; // Grey
+				}
+				listData.push({
+					color: badgeColor,
+					type: "warning",
+					content: `${booking.booking_start_time} - ${booking.booking_end_time}`,
+				});
+			}
+		});
+
+		return listData;
 	};
 
-	const addRoom = () => {
-		if (inputValue !== "") {
-			setRoom((prev) => {
-				prev = prev || [];
-				const newRoom = [...prev, { id: roomId, room: inputValue }];
-				window.localStorage.setItem("room", JSON.stringify(newRoom)); // Update localStorage with the new value
-				return newRoom; // Update the state with the new value
-			});
-			setRoomId(roomId + 1);
-			setInputValue("");
-		}
+	const dateCellRender = (value) => {
+		const listData = getListData(value);
+		return (
+			<ul className="events">
+				{listData.map((item, index) => (
+					<li key={index}>
+						<Badge status={item.type} text={item.content} />
+					</li>
+				))}
+			</ul>
+		);
 	};
 
 	return (
-		<>
-			{console.log("room: ", room)}
-			<div className="text-center">Meeting Room List</div>
-
-			<div className="flex flex-row justify-center">
-				<div>
-					<li className="list-none" key={room?.id}>
-						{room?.map((room) => {
-							return <ul key={room?.id}>{room.room}</ul>;
-						})}
-					</li>
-				</div>
-				<div>
-					{toggleCreateRoom ? (
-						<div>
-							<input
-								className="border"
-								value={inputValue}
-								onChange={(e) => setInputValue(e.target.value)}
-							/>
-							<button className="border" onClick={addRoom}>
-								Add room
-							</button>
-						</div>
-					) : (
-						<button className="border" onClick={createRoom}>
-							Create more room
-						</button>
-					)}
-				</div>
-			</div>
-			<div>
-				<BookingForm room={room} />
-			</div>
-		</>
+		<div>
+			<Calendar cellRender={dateCellRender} mode="month"></Calendar>
+			<BookingForm userToken={userToken} />
+		</div>
 	);
 }

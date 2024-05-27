@@ -39,23 +39,33 @@ export default function SignUp() {
 			password
 		);
 
-		try {
-			axios
-				.post("http://localhost:4000/users/signup", {
-					username,
-					password,
-				})
-				.then((response) => {
-					const { success, username } = response.data;
-					if (success) {
-						navigate("/users/signin");
-					} else {
-						setError("Have problem signing up.");
-					}
-				});
-		} catch (error) {
-			console.log(error);
-		}
+		axios
+			.post("http://localhost:4000/users/signup", {
+				username,
+				password,
+			})
+			.then((response) => {
+				const { success, username } = response.data;
+				console.log(response);
+				if (success) {
+					navigate("/users/signin");
+				} else {
+					setError("Have problem signing up.");
+				}
+			})
+			.catch((error) => {
+				if (error.response.status === 409) {
+					console.log(
+						`Request failed with status code ${error.response?.status}`
+					);
+					alert(error.response.data.message);
+				} else if (error.response.status === 500) {
+					console.log(
+						`Request failed with status code ${error.response?.status}`
+					);
+					alert(error.response.data.message);
+				}
+			});
 
 		// Reset form data (optional)
 		setUsername("");
@@ -79,7 +89,7 @@ export default function SignUp() {
 						className="login-input"
 						type="text"
 						name="username"
-						placeholder="Enter your email"
+						placeholder="Enter your username"
 						required
 						value={username}
 						onChange={(e) => setUsername(e.target.value)}
