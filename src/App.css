@@ -34,6 +34,16 @@
   .nav-item {
       @apply px-4 py-2 mx-2 my-1
   }
+  .dropdown-menu {
+    @apply list-none p-3 absolute hidden bg-white shadow-md z-[1000]
+  }
+  .dropdown:hover .dropdown-menu {
+   @apply flex flex-col /* Show the dropdown menu on hover */
+}
+  .dropdown-menu li {
+    @apply px-2 py-4
+}
+
   .form-item {
       @apply flex flex-col p-2 m-1 
   }

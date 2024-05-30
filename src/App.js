@@ -11,9 +11,7 @@ import PrivateRoute from "./components/PrivateRoute.js";
 import PageException from "./components/PageException.js";
 
 function App() {
-	const [userToken, setUserToken] = useState("");
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [token, setToken] = useState(null);
 
 	useEffect(() => console.log("login state: ", isLoggedIn));
 
@@ -46,17 +44,23 @@ function App() {
 							path="users/rooms"
 							element={
 								<PrivateRoute>
-									<Room userToken={userToken} />
+									<Room />
+								</PrivateRoute>
+							}
+						/>
+						<Route
+							path="users/bookings"
+							element={
+								<PrivateRoute>
+									<Room />
 								</PrivateRoute>
 							}
 						/>
 					</Route>
+					<Route path="users/logout"></Route>
 
 					{/* Public routes */}
-					<Route
-						path="/users/signin"
-						element={<SignIn setUserToken={setUserToken} />}
-					/>
+					<Route path="/users/signin" element={<SignIn />} />
 					<Route path="/users/signup" element={<SignUp />} />
 
 					<Route path="*" element={<PageException />} />

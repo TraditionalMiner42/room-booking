@@ -4,7 +4,7 @@ import axiosInstance from "../../axiosInstance.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-export default function BookingForm({ userToken }) {
+export default function BookingForm() {
 	// const { foundUser } = useContext(UserContext);
 
 	const navigate = useNavigate();
@@ -25,9 +25,11 @@ export default function BookingForm({ userToken }) {
 	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	useEffect(() => {
-		if (userToken) {
-			const decoded = jwtDecode(userToken.token);
+		const token = localStorage.getItem("accessToken");
+		if (token) {
+			const decoded = jwtDecode(token);
 			setUsername(decoded.username);
+			console.log("user: ", username);
 
 			const storedData = localStorage.getItem("meetingData");
 			if (storedData) {
@@ -52,7 +54,6 @@ export default function BookingForm({ userToken }) {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		console.log(userToken);
 		try {
 			axiosInstance
 				.post("/users/rooms", {
@@ -84,7 +85,6 @@ export default function BookingForm({ userToken }) {
 			console.log(error);
 		}
 
-		console.log("Updated user data: ", userToken);
 		console.log("Updated form data: ", formData);
 	};
 

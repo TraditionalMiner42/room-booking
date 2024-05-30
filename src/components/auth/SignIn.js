@@ -3,7 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.js";
 import axios from "axios";
 
-export default function SignIn({ setUserToken }) {
+export default function SignIn() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	// const [user, setUser] = useState(null);
@@ -24,6 +24,7 @@ export default function SignIn({ setUserToken }) {
 			.then((response) => {
 				// console.log(response.data);
 				const { success, username } = response.data;
+				console.log(response.data);
 				if (success) {
 					// Set session information as cookies
 					// document.cookie = `user=${JSON.stringify(
@@ -35,13 +36,18 @@ export default function SignIn({ setUserToken }) {
 						response.data.jwtAccessToken
 					);
 					login();
-					setUserToken({
-						token: localStorage.getItem("accessToken"),
-					});
 					console.log(
 						`access token: ${response.data.jwtAccessToken}`
 					);
-					navigate("/");
+					const token = localStorage.getItem("accessToken");
+					if (token) {
+						console.log(
+							"Token is successfully set in localStorage."
+						);
+						navigate("/"); // Navigate to the home page
+					} else {
+						console.error("Failed to set token in localStorage.");
+					}
 				} else {
 					setError("Invalid username or password");
 				}
