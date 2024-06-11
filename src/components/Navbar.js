@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
 	const navigate = useNavigate();
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-	const logOut = () => {
-		localStorage.removeItem("accessToken");
-		navigate("/users/signin");
+	const toggleDropdown = () => {
+		setIsDropdownOpen(!isDropdownOpen);
 	};
 
 	const navItems = [
@@ -20,8 +20,10 @@ function Navbar() {
 			label: "My Booking",
 			dropdown: [
 				{ path: "/users/booking/history", label: "Booking History" },
-				{ path: "/users/booking/upcoming", label: "Upcoming Bookings" },
-				{ path: "/users/logout", label: "Log Out", action: logOut() },
+				{
+					path: "/users/signin",
+					label: "Log Out",
+				},
 			],
 		},
 	];
@@ -32,17 +34,21 @@ function Navbar() {
 				<ul className="navbar">
 					{navItems.map((item) => {
 						return (
-							<li key={item.label} className="nav-item">
-								{/* <Link key={items.path} to={items.path}>
-									{items.label}
-								</Link> */}
+							// <li key={item.label} className="nav-item">
+							<>
 								{item.dropdown ? (
-									<div className="dropdown">
-										<span className="dropdown-toggle cursor-pointer">
-											{item.label}
-										</span>
+									<button
+										className="nav-item float-left"
+										onMouseEnter={toggleDropdown}
+										onMouseLeave={toggleDropdown}
+									>
+										{item.label}
 
-										<ul className="dropdown-menu">
+										<div
+											className={`dropdown-menu ${
+												isDropdownOpen ? "open" : ""
+											}`}
+										>
 											{item.dropdown.map(
 												(dropdownItem) => (
 													<li key={dropdownItem.path}>
@@ -70,12 +76,15 @@ function Navbar() {
 													</li>
 												)
 											)}
-										</ul>
-									</div>
+										</div>
+									</button>
 								) : (
-									<Link to={item.path}>{item.label}</Link>
+									<Link className="nav-item" to={item.path}>
+										{item.label}
+									</Link>
 								)}
-							</li>
+							</>
+							// </li>
 						);
 					})}
 				</ul>

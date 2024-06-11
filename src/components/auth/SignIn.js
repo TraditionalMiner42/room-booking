@@ -11,7 +11,9 @@ export default function SignIn() {
 	const navigate = useNavigate();
 	const { login } = useAuth();
 
-	useEffect(() => console.log("error: ", error));
+	useEffect(() =>
+		console.log("token: ", localStorage.getItem("accessToken"))
+	);
 
 	const handleSubmitEvent = (e) => {
 		e.preventDefault();
@@ -23,7 +25,7 @@ export default function SignIn() {
 			})
 			.then((response) => {
 				// console.log(response.data);
-				const { success, username } = response.data;
+				const { success, jwtAccessToken } = response.data;
 				console.log(response.data);
 				if (success) {
 					// Set session information as cookies
@@ -31,14 +33,9 @@ export default function SignIn() {
 					// 	user
 					// )}; Secure; HttpOnly`;
 					// Redirect or perform any other actions
-					localStorage.setItem(
-						"accessToken",
-						response.data.jwtAccessToken
-					);
+					localStorage.setItem("accessToken", jwtAccessToken);
 					login();
-					console.log(
-						`access token: ${response.data.jwtAccessToken}`
-					);
+					console.log(`access token: ${jwtAccessToken}`);
 					const token = localStorage.getItem("accessToken");
 					if (token) {
 						console.log(

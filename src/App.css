@@ -24,31 +24,53 @@
       @apply p-4 mx-2 my-2
   }
   
-  .form-btn {
-      @apply border rounded-md px-4 py-2 hover:bg-slate-400 hover:text-white
-  }
+
 
   .navbar {
       @apply flex flex-row justify-end
   }
+  
   .nav-item {
-      @apply px-4 py-2 mx-2 my-1
+      @apply px-6 py-3 relative hover:bg-slate-400 hover:text-white
+  }
+  .nav-item:hover .dropdown-menu {
+    max-height: fit-content; /* Adjust this value based on your content's height */
+    opacity: 1;
+    visibility: visible; 
   }
   .dropdown-menu {
-    @apply list-none p-3 absolute hidden bg-white shadow-md z-[1000]
+    @apply list-none absolute min-w-3  bg-white z-[1000] text-black
   }
-  .dropdown:hover .dropdown-menu {
-   @apply flex flex-col /* Show the dropdown menu on hover */
-}
-  .dropdown-menu li {
-    @apply px-2 py-4
-}
+  .dropdown-menu {
+    @apply flex flex-col;/* Show the dropdown menu on hover */
+
+    }
+    .dropdown-menu {
+        /* padding-top: 12px; */
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, visibility 0.3s;
+        visibility: hidden;
+    }
+    
+    .dropdown-menu.open {
+        max-height: fit-content; /* Adjust this value based on your content's height */
+        opacity: 1;
+        visibility: visible;
+    }
+    .dropdown-menu li {
+        @apply px-2 py-4
+    }
+    .dropdown-menu li:hover {
+        @apply bg-slate-300 text-white /* Add hover effect to dropdown menu items */
+    }
 
   .form-item {
       @apply flex flex-col p-2 m-1 
   }
   .input-item {
-      @apply border rounded-md w-3/4 p-1 my-1
+      @apply rounded-md p-1 my-1
   }
 }
 

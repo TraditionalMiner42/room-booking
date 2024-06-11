@@ -1,13 +1,20 @@
+import { Form, Input, Select, Button } from "antd";
+import GenericForm from "../GenericForm.js";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance.js";
-import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import GenericForm from "../GenericForm.js";
-import { Form } from "antd";
+import moment from "moment";
 
-export default function BookingForm({ isModalForm }) {
+export default function HomeForm({
+	roomId,
+	roomName,
+	selectedDate,
+	isModalForm,
+	username,
+	toPreviousMainModal,
+}) {
 	// const { foundUser } = useContext(UserContext);
-
 	const navigate = useNavigate();
 
 	const initialFormData = {
@@ -20,21 +27,15 @@ export default function BookingForm({ isModalForm }) {
 		participants: "",
 	};
 
-	// const [formData, setFormData] = useState(initialFormData);
 	const [rooms, setRooms] = useState([]);
-	const [username, setUsername] = useState("");
-
-	const [isSubmitted, setIsSubmitted] = useState(false);
+	// const [username, setUsername] = useState("");
 	const [form] = Form.useForm();
 
 	useEffect(() => {
 		const token = localStorage.getItem("accessToken");
-
 		if (token) {
-			const decoded = jwtDecode(token);
-			setUsername(decoded.username);
+			console.log("decoded user: ", username);
 		}
-
 		const fetchRooms = async () => {
 			try {
 				const response = await axiosInstance.get("/users/get_rooms");
@@ -50,27 +51,34 @@ export default function BookingForm({ isModalForm }) {
 	}, []);
 
 	useEffect(() => {
-		// console.log("user: ", username);
+		console.log("user: ", username);
+		console.log(selectedDate);
 		form.setFieldValue("name", username);
+		form.setFieldValue("dateStart", selectedDate);
+		form.setFieldValue("room", roomName);
 	});
 
-	const handleSubmit = (values) => {
+	const handleSubmit = (formData) => {
 		const fromTimeValue = form.getFieldValue("timeStart");
 		const toTimeValue = form.getFieldValue("timeEnd");
 
 		const fromTime = fromTimeValue ? fromTimeValue.format("HH:mm") : null;
 		const toTime = toTimeValue ? toTimeValue.format("HH:mm") : null;
 
-		const formValues = form.getFieldValue();
+		// const formValues = formData.getFieldValue();
+
+		console.log("form data: ", formData);
+
+		console.log(moment(selectedDate).format("YYYY-MM-DD"));
 
 		const modifiedFormValues = {
-			...formValues,
+			...formData,
 			timeStart: fromTime,
 			timeEnd: toTime,
 		};
 
 		// console.log("fromTime: ", fromTime);
-		// console.log("form: ", modifiedFormValues.room);
+		console.log("form: ", modifiedFormValues);
 		try {
 			axiosInstance
 				.post("/users/rooms", {
@@ -84,7 +92,6 @@ export default function BookingForm({ isModalForm }) {
 							"meetingData",
 							JSON.stringify(formData)
 						);
-						setIsSubmitted(true); // Update state for success message or redirection
 						// setFormData(initialFormData);
 						form.resetFields();
 					}
@@ -102,17 +109,7 @@ export default function BookingForm({ isModalForm }) {
 		} catch (error) {
 			console.log(error);
 		}
-
-		console.log("Updated form data: ", formValues);
 	};
-
-	const handleChange = (event) => {
-		console.log(event.target);
-		const { name, value } = event.target;
-		// setFormData((prevData) => ({ ...prevData, [name]: value }));
-	};
-
-	// console.log("name: ", username);
 
 	return (
 		<>
@@ -121,7 +118,11 @@ export default function BookingForm({ isModalForm }) {
 				username={username}
 				form={form}
 				initialFormData={initialFormData}
+				defaultRoomId={roomId}
+				defaultRoomName={roomName}
+				selectedDate={selectedDate}
 				isModalForm={isModalForm}
+				toPreviousMainModal={toPreviousMainModal}
 			/>
 			{/* <div className="flex justify-center items-center h-full">
 				<form

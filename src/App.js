@@ -1,5 +1,5 @@
 import { Routes, Route, Outlet, Router } from "react-router-dom";
-import LandingPage from "./components/LandingPage.js";
+import LandingPage from "./components/home/LandingPage.js";
 import SignIn from "./components/auth/SignIn.js";
 import SignUp from "./components/auth/SignUp.js";
 import "./App.css";
@@ -12,6 +12,7 @@ import PageException from "./components/PageException.js";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isModalForm, setIsModalForm] = useState(false);
 
 	useEffect(() => console.log("login state: ", isLoggedIn));
 
@@ -36,7 +37,7 @@ function App() {
 							path="/"
 							element={
 								<PrivateRoute>
-									<LandingPage />
+									<LandingPage isModalForm={!isModalForm} />
 								</PrivateRoute>
 							}
 						/>
@@ -44,7 +45,7 @@ function App() {
 							path="users/rooms"
 							element={
 								<PrivateRoute>
-									<Room />
+									<Room isModalForm={isModalForm} />
 								</PrivateRoute>
 							}
 						/>
@@ -57,7 +58,6 @@ function App() {
 							}
 						/>
 					</Route>
-					<Route path="users/logout"></Route>
 
 					{/* Public routes */}
 					<Route path="/users/signin" element={<SignIn />} />

@@ -4,6 +4,7 @@ import { Calendar, Badge, Popover, Modal } from "antd";
 import styled from "styled-components";
 import axiosInstance from "../../axiosInstance.js";
 import moment from "moment";
+import { jwtDecode } from "jwt-decode";
 
 // const StyledCalendarContainer = styled.div`
 // 	display: flex;
@@ -39,10 +40,11 @@ import moment from "moment";
 // 	/* Target other calendar elements as needed */
 // `;
 
-export default function Room() {
+export default function Room({ isModalForm }) {
+	console.log("Is modal form (booking nav): ", isModalForm);
 	return (
 		<div>
-			<BookingForm />
+			<BookingForm isModalForm={isModalForm} />
 		</div>
 	);
 }
