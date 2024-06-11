@@ -1,10 +1,4 @@
-import { useEffect, useState } from "react";
 import BookingForm from "./BookingForm.js";
-import { Calendar, Badge, Popover, Modal } from "antd";
-import styled from "styled-components";
-import axiosInstance from "../../axiosInstance.js";
-import moment from "moment";
-import { jwtDecode } from "jwt-decode";
 
 // const StyledCalendarContainer = styled.div`
 // 	display: flex;

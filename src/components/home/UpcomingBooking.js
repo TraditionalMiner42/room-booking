@@ -3,7 +3,6 @@ import moment from "moment";
 export default function UpcomingBooking({ selectedDate, bookings }) {
 	const seenDates = new Set();
 	const now = moment();
-	const selectedMoment = moment(selectedDate);
 
 	const filteredBookings = bookings.filter((booking) => {
 		return moment(booking.booking_date).isSameOrAfter(now, "day");

@@ -1,9 +1,8 @@
-import { Form, Input, Select, Button } from "antd";
+import { Form } from "antd";
 import GenericForm from "../GenericForm.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance.js";
-import { jwtDecode } from "jwt-decode";
 import moment from "moment";
 
 export default function HomeForm({
@@ -48,7 +47,7 @@ export default function HomeForm({
 
 		fetchRooms();
 		console.log("Meeting rooms: ", rooms);
-	}, []);
+	}, [rooms, username]);
 
 	useEffect(() => {
 		console.log("user: ", username);
@@ -86,7 +85,7 @@ export default function HomeForm({
 				})
 				.then((response) => {
 					console.log(response.data);
-					const { success, userId, formData } = response.data;
+					const { success, formData } = response.data;
 					if (success) {
 						localStorage.setItem(
 							"meetingData",
