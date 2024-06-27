@@ -2,79 +2,71 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../axiosInstance.js";
 import moment from "moment";
-import { Badge, Calendar, Modal, Col, Row, Button } from "antd";
+import { Badge, Calendar, Modal, Col, Row, Button, Result } from "antd";
 import HomeForm from "./HomeForm.js";
 import UpcomingBooking from "./UpcomingBooking.js";
 import { jwtDecode } from "jwt-decode";
+import {
+	fetchBookings,
+	fetchGetBookings,
+	fetchGetRooms,
+	fetchRooms,
+} from "../../api/DataService.js";
+import EachBooking from "./EachBooking.js";
+import OneDayBooking from "./OneDayBookings.js";
+import { createPortal } from "react-dom";
 
-function LandingPage({ isModalForm }) {
+function LandingPage({ isModalForm, username, setUsername }) {
 	const [rooms, setRooms] = useState([]);
 	const [bookings, setBookings] = useState([]);
+	const [selectedBooking, setSelectedBooking] = useState(null);
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedRoomId, setSelectedRoomId] = useState(null);
 	const [selectedRoomName, setSelectedRoomName] = useState(null);
+
 	const [mainModalVisible, setMainModalVisible] = useState(false);
 	const [subModalVisible, setSubModalVisible] = useState(false);
+	const [detailModalVisible, setDetailModalVisible] = useState(false);
+
+	const [currentBookingIndex, setCurrentBookingIndex] = useState(null);
+	// const [isSubmitted, setIsSubmitted] = useState(false);
+
 	const navigate = useNavigate();
 
-	// const isModalFormState = isModalForm();
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const value = params.get("submit");
+		console.log(value);
 
-	console.log("isModalForm: ", isModalForm);
-
-	const [username, setUsername] = useState("");
+		if (value === "success") {
+			console.log(value);
+			// Clear the URL parameter after processing
+			navigate("/", { replace: true });
+			window.location.reload();
+		}
+	}, [navigate]);
 
 	useEffect(() => {
 		console.log("sub modal visible: ", subModalVisible);
+
 		const token = localStorage.getItem("accessToken");
 		console.log(token);
 		if (token) {
 			const decoded = jwtDecode(token);
 			setUsername(decoded.username);
-			const fetchRooms = async () => {
-				try {
-					console.log("acc token: ", token);
-					const response = await axiosInstance.get(
-						"/users/get_rooms"
-					);
-					console.log("Rooms response:", response.data.rooms); // Check response data
-					setRooms(response.data.rooms);
-					console.log(rooms);
-				} catch (error) {
-					console.error("Error fetching rooms:", error);
-				}
-			};
 
-			const fetchBookings = async () => {
-				try {
-					const bookingResponse = await axiosInstance.get(
-						"/users/get_bookings"
-					);
-					console.log(bookingResponse.data.bookings);
-					setBookings(bookingResponse.data.bookings);
-				} catch (error) {
-					console.error("Error fetching bookings:", error);
-				}
-			};
-
-			fetchRooms();
-			fetchBookings();
+			fetchGetRooms().then((data) => setRooms(data));
+			fetchGetBookings().then((data) => setBookings(data));
 		} else {
 			console.log("No token found.");
 		}
 	}, []);
 
-	// useEffect(() => console.log(filteredBookings));
-
 	const handleDateSelect = (date) => {
 		const formatDate = date.format("YYYY-MM-DD");
 		console.log("formatted date: ", formatDate);
 		setSelectedDate(formatDate);
-
 		setMainModalVisible(true);
-	};
-
-	const handleModalCancel = () => {
-		setMainModalVisible(false);
 	};
 
 	const onSubModal = (
@@ -90,9 +82,18 @@ function LandingPage({ isModalForm }) {
 		setSubModalVisible(stateSub);
 	};
 
+	const onDetailModal = (e, roomId, roomName, selectedDate) => {
+		setSelectedRoomId(roomId);
+		setSelectedRoomName(roomName);
+		setMainModalVisible(false);
+		setDetailModalVisible(true);
+		// Set other modal state as needed
+	};
+
 	const toPreviousMainModal = () => {
-		setMainModalVisible(!mainModalVisible);
-		setSubModalVisible(!subModalVisible);
+		setMainModalVisible(true);
+		setSubModalVisible(false);
+		setDetailModalVisible(false);
 	};
 
 	const CustomHeader = ({ value, type, onChange, onTypeChange }) => {
@@ -126,7 +127,34 @@ function LandingPage({ isModalForm }) {
 		  })
 		: [];
 
-	console.log(filteredBookings);
+	const availableRoom = rooms.filter((room) => {
+		const roomBookings = filteredBookings
+			.filter((booking) => booking.room_name === room.room_name)
+			.sort((a, b) =>
+				a.booking_start_time.localeCompare(b.booking_start_time)
+			);
+
+		let lastEndTime = "08:00:00";
+
+		for (const booking of roomBookings) {
+			if (booking.booking_start_time > lastEndTime) {
+				// Check if there is a gap
+				if (
+					lastEndTime < "16:00:00" &&
+					booking.booking_start_time > "08:00:00"
+				) {
+					return true;
+				}
+			}
+			lastEndTime =
+				booking.booking_end_time > lastEndTime
+					? booking.booking_end_time
+					: lastEndTime;
+		}
+
+		// Check for availability after the last booking
+		return lastEndTime < "16:00:00";
+	});
 
 	const getListData = (value) => {
 		let listData = [];
@@ -210,125 +238,73 @@ function LandingPage({ isModalForm }) {
 							console.log("Date: ", date);
 							handleDateSelect(date);
 						}
-					}}
-				></Calendar>
+					}}></Calendar>
 			</div>
-			(
-			<>
-				<Modal
-					open={mainModalVisible}
-					onCancel={handleModalCancel}
-					footer={null}
-				>
-					<div className="font-semibold text-2xl">
-						Booking Details
-					</div>
-					<Row gutter={[32, 32]}>
-						{
-							<>
-								<Col span={24} className="flex flex-col">
-									<div className="pt-5 text-lg">
-										Booked Rooms
-									</div>
-									{filteredBookings
-										.sort((a, b) =>
-											moment(
-												a.booking_start_time,
-												"HH:mm"
-											).diff(
-												moment(
-													b.booking_start_time,
-													"HH:mm"
-												)
-											)
-										)
-										.map((booking, index) => (
-											<div
-												className="flex flex-row justify-between mt-3 mb-3 p-3 border rounded-md border-red-500 cursor-pointer"
-												key={index}
-											>
-												<div>
-													<div>
-														<strong>
-															{booking.room_name}
-														</strong>
-													</div>
-													<div>
-														{moment(
-															booking.booking_start_time,
-															"HH:mm"
-														).format("HH:mm")}{" "}
-														-{" "}
-														{moment(
-															booking.booking_end_time,
-															"HH:mm"
-														).format("HH:mm")}
-													</div>
-												</div>
-											</div>
-										))}
-									<div className="pt-5 text-lg">
-										Available Rooms
-									</div>
-									{rooms
-										.filter(
-											(room) =>
-												!filteredBookings.some(
-													(booking) =>
-														booking.room_name ===
-														room.room_name
-												)
-										)
-										.map((room, index) => (
-											<div
-												className="flex flex-row justify-between mt-3 mb-3 p-3 border rounded-md border-blue-500 cursor-pointer"
-												key={index}
-											>
-												<div>
-													<div>
-														<strong>
-															{room.room_name}
-														</strong>
-													</div>
-												</div>
-												<Button
-													type="primary"
-													className="self-center"
-													onClick={(e) =>
-														onSubModal(
-															e,
-															room.room_id,
-															room.room_name,
-															selectedDate
-														)
-													}
-													value={room.room_name}
-												>
-													Book now
-												</Button>
-											</div>
-										))}
-								</Col>
-							</>
-						}
-					</Row>
-				</Modal>
-				<Modal
-					open={subModalVisible}
-					onCancel={(e) => setSubModalVisible(false)}
-					footer={null}
-				>
-					<HomeForm
-						roomId={selectedRoomId}
-						roomName={selectedRoomName}
-						selectedDate={selectedDate}
-						isModalForm={isModalForm}
-						username={username}
-						toPreviousMainModal={toPreviousMainModal}
-					/>
-				</Modal>
-			</>
+			<div id="main-modal"></div>
+			<OneDayBooking
+				mainModalVisible={mainModalVisible}
+				setMainModalVisible={setMainModalVisible}
+				filteredBookings={filteredBookings}
+				setSelectedBooking={setSelectedBooking}
+				setCurrentBookingIndex={setCurrentBookingIndex}
+				selectedDate={selectedDate}
+				rooms={rooms}
+				availableRoom={availableRoom}
+				onDetailModal={onDetailModal}
+				onSubModal={onSubModal}
+			/>
+
+			{/* {console.log("selected booking: ", selectedBooking)} */}
+			<div id="detail-modal"></div>
+			{filteredBookings.map(
+				(booking, index) =>
+					detailModalVisible &&
+					currentBookingIndex === index &&
+					createPortal(
+						<Modal
+							key={index} // Make sure to provide a unique key
+							open={detailModalVisible}
+							onCancel={(e) => {
+								setDetailModalVisible(false);
+								setCurrentBookingIndex(null);
+							}}
+							footer={null}>
+							<EachBooking
+								index={index}
+								detailModalVisible={detailModalVisible}
+								setDetailModalVisible={setDetailModalVisible}
+								setCurrentBookingIndex={setCurrentBookingIndex}
+								key={currentBookingIndex} // Ensure EachBooking components have unique keys
+								selectedBooking={selectedBooking}
+								roomId={selectedRoomId}
+								roomName={selectedRoomName}
+								username={username}
+								toPreviousMainModal={toPreviousMainModal}
+							/>
+						</Modal>,
+						document.getElementById("detail-modal")
+					)
 			)}
+
+			<div id="form-modal"></div>
+			{subModalVisible &&
+				createPortal(
+					<Modal
+						open={subModalVisible}
+						onCancel={(e) => setSubModalVisible(false)}
+						footer={null}>
+						<HomeForm
+							roomId={selectedRoomId}
+							roomName={selectedRoomName}
+							selectedDate={selectedDate}
+							isModalForm={isModalForm}
+							username={username}
+							setUsername={setUsername}
+							toPreviousMainModal={toPreviousMainModal}
+						/>
+					</Modal>,
+					document.getElementById("form-modal")
+				)}
 		</>
 	);
 }

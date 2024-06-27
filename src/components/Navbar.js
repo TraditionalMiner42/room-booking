@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 function Navbar() {
 	const navigate = useNavigate();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [activeItem, setActiveItem] = useState(null);
 
 	const toggleDropdown = () => {
 		setIsDropdownOpen(!isDropdownOpen);
@@ -18,13 +19,17 @@ function Navbar() {
 		{
 			path: "/users/bookings",
 			label: "My Booking",
-			dropdown: [
-				{ path: "/users/booking/history", label: "Booking History" },
-				{
-					path: "/users/signin",
-					label: "Log Out",
-				},
-			],
+			// dropdown: [
+			// 	{ path: "/users/booking/history", label: "Booking History" },
+			// 	{
+			// 		path: "/users/signin",
+			// 		label: "Log Out",
+			// 	},
+			// ],
+		},
+		{
+			path: "/users/signin",
+			label: "Log out",
 		},
 	];
 
@@ -34,57 +39,14 @@ function Navbar() {
 				<ul className="navbar">
 					{navItems.map((item) => {
 						return (
-							// <li key={item.label} className="nav-item">
-							<>
-								{item.dropdown ? (
-									<button
-										className="nav-item float-left"
-										onMouseEnter={toggleDropdown}
-										onMouseLeave={toggleDropdown}
-									>
-										{item.label}
-
-										<div
-											className={`dropdown-menu ${
-												isDropdownOpen ? "open" : ""
-											}`}
-										>
-											{item.dropdown.map(
-												(dropdownItem) => (
-													<li key={dropdownItem.path}>
-														{dropdownItem.path ? (
-															<Link
-																to={
-																	dropdownItem.path
-																}
-															>
-																{
-																	dropdownItem.label
-																}
-															</Link>
-														) : (
-															<span
-																onClick={
-																	dropdownItem.action
-																}
-															>
-																{
-																	dropdownItem.label
-																}
-															</span>
-														)}
-													</li>
-												)
-											)}
-										</div>
-									</button>
-								) : (
-									<Link className="nav-item" to={item.path}>
-										{item.label}
-									</Link>
-								)}
-							</>
-							// </li>
+							<Link
+								className={`nav-item ${
+									activeItem === item.path ? "active" : ""
+								}`}
+								to={item.path}
+								onClick={() => setActiveItem(item.path)}>
+								{item.label}
+							</Link>
 						);
 					})}
 				</ul>

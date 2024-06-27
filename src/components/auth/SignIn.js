@@ -1,116 +1,151 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.js";
-import axios from "axios";
+import { Alert, Button, Form, Input } from "antd";
+import { signInCurrentUser } from "../../api/DataService.js";
 
 export default function SignIn() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	// const [user, setUser] = useState(null);
 	const [error, setError] = useState("");
 	const navigate = useNavigate();
 	const { login } = useAuth();
+	const [form] = Form.useForm();
 
-	useEffect(() =>
-		console.log("token: ", localStorage.getItem("accessToken"))
-	);
+	const localtion = useLocation();
+
+	useEffect(() => {
+		const params = new URLSearchParams(localtion.search);
+		const value = params.get("submit");
+
+		if (value === "success") {
+			setTimeout(() => {
+				navigate("/users/signin", { replace: true }); // Navigate to signin page
+			}, 2000);
+		}
+
+		// Clear the URL parameter after processing
+		// navigate("/", { replace: true });
+	}, [navigate]);
 
 	const handleSubmitEvent = (e) => {
-		e.preventDefault();
+		// e.preventDefault();
 
-		axios
-			.post("http://localhost:4000/users/signin", {
-				username,
-				password,
-			})
-			.then((response) => {
-				// console.log(response.data);
-				const { success, jwtAccessToken } = response.data;
-				console.log(response.data);
-				if (success) {
-					// Set session information as cookies
-					// document.cookie = `user=${JSON.stringify(
-					// 	user
-					// )}; Secure; HttpOnly`;
-					// Redirect or perform any other actions
-					localStorage.setItem("accessToken", jwtAccessToken);
-					login();
-					console.log(`access token: ${jwtAccessToken}`);
-					const token = localStorage.getItem("accessToken");
-					if (token) {
-						console.log(
-							"Token is successfully set in localStorage."
-						);
-						navigate("/"); // Navigate to the home page
-					} else {
-						console.error("Failed to set token in localStorage.");
+		try {
+			signInCurrentUser(username, password)
+				.then((response) => {
+					const { success, jwtAccessToken } = response.data;
+					if (success) {
+						// Set session information as cookies
+						// document.cookie = `user=${JSON.stringify(
+						// 	user
+						// )}; Secure; HttpOnly`;
+						// Redirect or perform any other actions
+						if (success) {
+							localStorage.setItem("accessToken", jwtAccessToken);
+							navigate("/");
+							// Perform any other actions upon successful login
+						} else {
+							setError("Invalid username or password");
+						}
 					}
-				} else {
-					setError("Invalid username or password");
-				}
-			})
-			.catch((error) => {
-				if (error.response?.status === 500) {
-					console.log(
-						`Request failed with status code ${error.response?.status}`
-					);
-					alert(error.response.data.message);
-				}
-			});
+				})
+				.catch((error) => {
+					console.log(error.response);
+
+					if (
+						error.message === "Username or password is not matched"
+					) {
+						setError(error.message);
+					} else {
+						setError("An error occurred during sign-in");
+					}
+				});
+		} catch (error) {
+			console.log("Error signing in.", error);
+		}
 	};
 
 	return (
 		<>
-			<div className="text-center text-xl mt-4 pt-10">
-				Welcome to Meeting Room Booking System
-			</div>
-			<form
-				className="flex flex-col justify-center items-center p-4 m-4"
-				onSubmit={handleSubmitEvent}
-				method="post"
-			>
-				<div className="flex flex-col text-left p-2 mx-2 my-2">
-					<label className="login-label" htmlFor="email">
-						Username
-					</label>
-					<input
-						className="login-input"
-						type="text"
+			<div className="flex flex-col justify-start items-center min-h-screen bg-gray-100">
+				{/* Change welcoming text later */}
+				<div className="py-8 px-4 m-4 text-center text-2xl tracking-widest">
+					Welcome to Meeting Room Booking System
+				</div>
+
+				<Form
+					form={form}
+					name="login"
+					className="m-4 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl p-8 bg-white shadow-md rounded-md"
+					initialValues={{ username, password }}
+					onFinish={handleSubmitEvent}
+					layout="vertical">
+					<Form.Item
+						className="pb-2 pt-4"
+						label={<p className="text-base">Username</p>}
 						name="username"
-						placeholder="Enter your username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						required
-					/>
-				</div>
-				<div className="flex flex-col text-left p-2 mx-2 my-2">
-					<label className="login-label" htmlFor="password">
-						Password
-					</label>
-					<input
-						className="login-input"
-						type="password"
+						rules={[
+							{
+								required: true,
+								message: "Please enter your username",
+							},
+						]}>
+						<Input
+							placeholder="Enter your username"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+						/>
+					</Form.Item>
+					<Form.Item
+						className="py-2"
+						label={<p className="text-base">Password</p>}
 						name="password"
-						placeholder="Enter your password"
-						minLength="8"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						required
-					/>
-				</div>
-				<div className="login-btn-container">
-					<button className="form-btn" type="submit">
-						Log In
-					</button>
-					{error && <p className="error-message">{error}</p>}
-				</div>
-				<div className="flex flex-row space-x-5">
-					<p>Forgot password?</p>
-					<p>
-						<Link to={"/users/signup"}>Sign Up</Link>
-					</p>
-				</div>
-			</form>
+						rules={[
+							{
+								required: true,
+								message: "Please enter your password",
+							},
+							{
+								min: 8,
+								message:
+									"Password must be at least 8 characters",
+							},
+						]}>
+						<Input.Password
+							placeholder="Enter your password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						/>
+					</Form.Item>
+
+					{error && (
+						<Alert
+							type="error"
+							message={error}
+							onClose={() => setError(null)}
+							closable>
+							{error}
+						</Alert>
+					)}
+
+					<Form.Item className="py-2">
+						<Button
+							type="primary"
+							htmlType="submit"
+							className="w-full">
+							Log In
+						</Button>
+					</Form.Item>
+
+					<div className="flex justify-between pb-4">
+						<p>Forgot password?</p>
+						<p>
+							<Link to="/users/signup">Sign Up</Link>
+						</p>
+					</div>
+				</Form>
+			</div>
 		</>
 	);
 }

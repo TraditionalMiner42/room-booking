@@ -1,9 +1,11 @@
-import { Form } from "antd";
+import { Alert, Form, Result, Spin } from "antd";
 import GenericForm from "../GenericForm.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance.js";
 import moment from "moment";
+import { fetchPostForm } from "../../api/DataService.js";
+import { jwtDecode } from "jwt-decode";
 
 export default function HomeForm({
 	roomId,
@@ -11,10 +13,14 @@ export default function HomeForm({
 	selectedDate,
 	isModalForm,
 	username,
+	setUsername,
 	toPreviousMainModal,
 }) {
 	// const { foundUser } = useContext(UserContext);
 	const navigate = useNavigate();
+	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [alertMessage, setAlertMessage] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const initialFormData = {
 		meetingTopic: "",
@@ -23,18 +29,19 @@ export default function HomeForm({
 		timeStart: null,
 		timeEnd: null,
 		room: "",
-		participants: "",
 	};
 
 	const [rooms, setRooms] = useState([]);
-	// const [username, setUsername] = useState("");
 	const [form] = Form.useForm();
 
 	useEffect(() => {
 		const token = localStorage.getItem("accessToken");
+
 		if (token) {
-			console.log("decoded user: ", username);
+			const decoded = jwtDecode(token);
+			setUsername(decoded.username);
 		}
+
 		const fetchRooms = async () => {
 			try {
 				const response = await axiosInstance.get("/users/get_rooms");
@@ -47,15 +54,11 @@ export default function HomeForm({
 
 		fetchRooms();
 		console.log("Meeting rooms: ", rooms);
-	}, [rooms, username]);
+	}, []);
 
-	useEffect(() => {
-		console.log("user: ", username);
-		console.log(selectedDate);
-		form.setFieldValue("name", username);
-		form.setFieldValue("dateStart", selectedDate);
-		form.setFieldValue("room", roomName);
-	});
+	form.setFieldValue("name", username);
+	form.setFieldValue("dateStart", selectedDate);
+	form.setFieldValue("room", roomName);
 
 	const handleSubmit = (formData) => {
 		const fromTimeValue = form.getFieldValue("timeStart");
@@ -66,9 +69,7 @@ export default function HomeForm({
 
 		// const formValues = formData.getFieldValue();
 
-		console.log("form data: ", formData);
-
-		console.log(moment(selectedDate).format("YYYY-MM-DD"));
+		// console.log(moment(selectedDate).format("YYYY-MM-DD"));
 
 		const modifiedFormValues = {
 			...formData,
@@ -78,33 +79,35 @@ export default function HomeForm({
 
 		// console.log("fromTime: ", fromTime);
 		console.log("form: ", modifiedFormValues);
+		setLoading(true);
 		try {
-			axiosInstance
-				.post("/users/rooms", {
-					modifiedFormValues,
-				})
+			fetchPostForm(modifiedFormValues)
 				.then((response) => {
-					console.log(response.data);
-					const { success, formData } = response.data;
+					console.log(response);
+					const { success } = response.data;
 					if (success) {
-						localStorage.setItem(
-							"meetingData",
-							JSON.stringify(formData)
-						);
-						// setFormData(initialFormData);
 						form.resetFields();
+						setIsSubmitted(true);
+						setTimeout(() => {
+							navigate("/?submit=success", { replace: true });
+						}, 2000);
 					}
 				})
 				.catch((error) => {
-					if (error.response.status === 403) {
+					if (error.response && error.response.status === 403) {
 						localStorage.removeItem("accessToken");
 						navigate("/users/signin");
-					} else if (error.response.status === 409) {
-						alert(error.response.data.message);
+					} else if (
+						error.response &&
+						error.response.status === 409
+					) {
+						setAlertMessage(error.response.data.message);
+						// alert(error.response.data.message);
 					} else {
-						console.log(error);
+						console.error("An unexpected error occurred:", error);
 					}
-				});
+				})
+				.finally(() => setLoading(false));
 		} catch (error) {
 			console.log(error);
 		}
@@ -112,129 +115,33 @@ export default function HomeForm({
 
 	return (
 		<>
-			<GenericForm
-				handleSubmit={handleSubmit}
-				username={username}
-				form={form}
-				initialFormData={initialFormData}
-				defaultRoomId={roomId}
-				defaultRoomName={roomName}
-				selectedDate={selectedDate}
-				isModalForm={isModalForm}
-				toPreviousMainModal={toPreviousMainModal}
-			/>
-			{/* <div className="flex justify-center items-center h-full">
-				<form
-					className="w-1/2 py-2 px-2 flex flex-col items-start border-2"
-					onSubmit={handleSubmit}
-				>
-					<div className="form-item">
-						<label>Meeting Topic</label>
-						<input
-							className="input-item"
-							placeholder="topic"
-							type="text"
-							name="meetingTopic"
-							value={formData.meetingTopic}
-							onChange={handleChange}
-							required
+			{isSubmitted ? (
+				<Result status="success" title="You have submitted the form." />
+			) : (
+				<>
+					<Spin spinning={loading} tip="Loading" size="large">
+						<GenericForm
+							handleSubmit={handleSubmit}
+							username={username}
+							form={form}
+							initialFormData={initialFormData}
+							defaultRoomId={roomId}
+							defaultRoomName={roomName}
+							selectedDate={selectedDate}
+							isModalForm={isModalForm}
+							toPreviousMainModal={toPreviousMainModal}
 						/>
-					</div>
-					<div className="form-item">
-						<label>Name</label>
-						<input
-							className="input-item"
-							placeholder="name"
-							type="text"
-							name="name"
-							value={username}
-							onChange={handleChange}
-							required
-							disabled
-						/>
-					</div>
-					<div className="form-item">
-						<label>Booking Date</label>
-						<div className="flex flex-col lg:flex-row lg:items-center">
-							<input
-								className="input-item"
-								placeholder="Start date"
-								type="date"
-								name="dateStart"
-								value={formData.dateStart}
-								onChange={handleChange}
-								required
+						{alertMessage && (
+							<Alert
+								type="error"
+								message={alertMessage}
+								onClose={() => setAlertMessage(null)}
+								closable
 							/>
-						</div>
-					</div>
-					<div className="form-item">
-						<label>Booking Time</label>
-						<div className="flex flex-col lg:flex-row lg:items-center">
-							<input
-								className="input-item"
-								placeholder="Start time"
-								type="time"
-								name="timeStart"
-								value={formData.timeStart}
-								onChange={handleChange}
-								min="09:00"
-								max="18:00"
-								required
-							/>
-							<span className="flex items-center mx-2">to</span>
-							<input
-								className="input-item"
-								placeholder="End time"
-								type="time"
-								name="timeEnd"
-								value={formData.timeEnd}
-								onChange={handleChange}
-								required
-							/>
-						</div>
-					</div>
-					<div className="form-item">
-						<label>Select Room</label>
-						<select
-							className="input-item"
-							onChange={handleChange}
-							value={formData.room}
-							name="room"
-							selected
-							required
-						>
-							<option value="" disabled hidden>
-								Choose room
-							</option>
-							{rooms?.map((room) => (
-								<option
-									key={room.room_id}
-									value={room.room_name}
-								>
-									{room.room_name}
-								</option>
-							))}
-						</select>
-					</div>
-					<div className="form-item">
-						<label>Participants</label>
-						<input
-							className="input-item"
-							placeholder="Attend"
-							type="text"
-							name="participants"
-							value={formData.participants}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className="form-item">
-						<button className="px-4 py-2 border-2 rounded-md">
-							Submit
-						</button>
-					</div>
-				</form>
-			</div> */}
+						)}
+					</Spin>
+				</>
+			)}
 		</>
 	);
 }

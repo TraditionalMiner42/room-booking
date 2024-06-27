@@ -17,10 +17,11 @@ export default function GenericForm({
 }) {
 	const [rooms, setRooms] = useState([]);
 
-	useEffect(() => {
-		console.log("userrrr: ", username);
-		console.log("booking date: ", selectedDate);
+	console.log("userrrr: ", username);
+	console.log("booking date: ", selectedDate);
+	console.log("rooms : ", rooms);
 
+	useEffect(() => {
 		const fetchRooms = async () => {
 			try {
 				const response = await axiosInstance.get("/users/get_rooms");
@@ -50,18 +51,14 @@ export default function GenericForm({
 
 	return (
 		<>
-			<div className="flex justify-center items-center h-full w-full">
+			<div className="flex justify-center pt-6 items-center h-full w-full">
 				<Form
-					className={`p-6 ${!isModalForm ? "border-2" : ""}`}
+					className={`p-6`}
 					onFinish={handleSubmit}
 					form={form}
-					initialValues={initialFormData}
-				>
-					{/* <Form.Item>
-						<DatePicker value={moment("2024-01-01")}></DatePicker>
-					</Form.Item> */}
+					initialValues={initialFormData}>
 					<Form.Item
-						label="Meeting Topic"
+						label={<p className="text-base">Meeting Topic</p>}
 						labelAlign="right"
 						name="meetingTopic"
 						rules={[
@@ -75,12 +72,11 @@ export default function GenericForm({
 						}}
 						wrapperCol={{
 							span: 10,
-						}}
-					>
+						}}>
 						<Input placeholder="topic" type="text" required />
 					</Form.Item>
 					<Form.Item
-						label="Name"
+						label={<p className="text-base">Name</p>}
 						labelAlign="right"
 						name="name"
 						rules={[
@@ -94,8 +90,7 @@ export default function GenericForm({
 						}}
 						wrapperCol={{
 							span: 10,
-						}}
-					>
+						}}>
 						<Input
 							placeholder="name"
 							defaultValue={username}
@@ -105,7 +100,7 @@ export default function GenericForm({
 						/>
 					</Form.Item>
 					<Form.Item
-						label="Booking Date"
+						label={<p className="text-base">Booking Date</p>}
 						labelAlign="right"
 						name="dateStart"
 						rules={[
@@ -119,8 +114,7 @@ export default function GenericForm({
 						}}
 						wrapperCol={{
 							span: 10,
-						}}
-					>
+						}}>
 						{isModalForm ? (
 							<Input value={selectedDate} disabled />
 						) : (
@@ -128,7 +122,7 @@ export default function GenericForm({
 						)}
 					</Form.Item>
 					<Form.Item
-						label="Booking Time"
+						label={<p className="text-base">Booking Time</p>}
 						labelAlign="right"
 						rules={[
 							{
@@ -141,8 +135,7 @@ export default function GenericForm({
 						}}
 						wrapperCol={{
 							span: 10,
-						}}
-					>
+						}}>
 						<Input.Group compact>
 							<Form.Item name="timeStart">
 								<TimePicker
@@ -150,7 +143,6 @@ export default function GenericForm({
 									placeholder="Start time"
 									disabledHours={disabledHours}
 									minuteStep={15}
-									// defaultValue={moment("08:30", "HH:mm")}
 									format="HH:mm"
 									required
 								/>
@@ -159,6 +151,8 @@ export default function GenericForm({
 								<TimePicker
 									name="timeEnd"
 									placeholder="End time"
+									disabledHours={disabledHours}
+									minuteStep={15}
 									format="HH:mm"
 									required
 								/>
@@ -166,7 +160,7 @@ export default function GenericForm({
 						</Input.Group>
 					</Form.Item>
 					<Form.Item
-						label="Select Room"
+						label={<p className="text-base">Select Room</p>}
 						name="room"
 						rules={[
 							{
@@ -178,8 +172,7 @@ export default function GenericForm({
 						}}
 						wrapperCol={{
 							span: 10,
-						}}
-					>
+						}}>
 						{isModalForm ? (
 							<>
 								<Input
@@ -190,53 +183,35 @@ export default function GenericForm({
 								/>
 							</>
 						) : (
-							<Select
-								required
-								name="room"
-								placeholder="Choose room"
-								defaultValue={defaultRoomName}
-							>
+							<Select required placeholder="Choose room">
 								{rooms.map((room) => (
-									<Select.Option key={room.room_id}>
-										{room.room_name}
-									</Select.Option>
+									<Select.Option
+										key={room.room_id}
+										value={room.room_name}
+										children={
+											room.room_name
+										}></Select.Option>
 								))}
 							</Select>
 						)}
-					</Form.Item>
-					<Form.Item
-						label="Participants"
-						name="participants"
-						rules={[
-							{
-								required: true,
-								message: "Please input participants!",
-							},
-						]}
-						labelCol={{
-							span: 10,
-						}}
-						wrapperCol={{
-							span: 10,
-						}}
-					>
-						<Input placeholder="Attend" type="text" required />
 					</Form.Item>
 					<Form.Item className="ant-btn flex flex-col justify-between">
 						<Button
 							className="mx-4"
 							type="primary"
-							htmlType="submit"
-						>
+							htmlType="submit">
 							Submit
 						</Button>
-						<Button
-							className="mx-4"
-							type="primary"
-							onClick={toPreviousMainModal}
-						>
-							Back
-						</Button>
+						{isModalForm ? (
+							<Button
+								className="mx-4"
+								type="primary"
+								onClick={toPreviousMainModal}>
+								Back
+							</Button>
+						) : (
+							""
+						)}
 					</Form.Item>
 				</Form>
 			</div>

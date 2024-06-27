@@ -9,10 +9,12 @@ import Room from "./components/room/Room.js";
 import { AuthProvider } from "./components/context/AuthContext.js";
 import PrivateRoute from "./components/PrivateRoute.js";
 import PageException from "./components/PageException.js";
+import MyBooking from "./components/my-bookings/MyBookings.js";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [isModalForm, setIsModalForm] = useState(false);
+	const [username, setUsername] = useState("");
 
 	useEffect(() => console.log("login state: ", isLoggedIn));
 
@@ -21,7 +23,7 @@ function App() {
 	// 	setToken(Math.random().toString(36).substring(2, 15)); // Generate dummy token
 	// };
 	return (
-		<div className="app-container">
+		<div className="font-NotoSansThai">
 			<AuthProvider>
 				<Routes>
 					{/* Private Routes */}
@@ -31,13 +33,16 @@ function App() {
 								<Navbar />
 								<Outlet />
 							</>
-						}
-					>
+						}>
 						<Route
 							path="/"
 							element={
 								<PrivateRoute>
-									<LandingPage isModalForm={!isModalForm} />
+									<LandingPage
+										isModalForm={!isModalForm}
+										username={username}
+										setUsername={setUsername}
+									/>
 								</PrivateRoute>
 							}
 						/>
@@ -45,7 +50,11 @@ function App() {
 							path="users/rooms"
 							element={
 								<PrivateRoute>
-									<Room isModalForm={isModalForm} />
+									<Room
+										isModalForm={isModalForm}
+										username={username}
+										setUsername={setUsername}
+									/>
 								</PrivateRoute>
 							}
 						/>
@@ -53,7 +62,10 @@ function App() {
 							path="users/bookings"
 							element={
 								<PrivateRoute>
-									<Room />
+									<MyBooking
+										username={username}
+										setUsername={setUsername}
+									/>
 								</PrivateRoute>
 							}
 						/>

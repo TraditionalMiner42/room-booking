@@ -3,11 +3,10 @@ import axiosInstance from "../../axiosInstance.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import GenericForm from "../GenericForm.js";
-import { Form } from "antd";
+import { Form, Result, Spin } from "antd";
+import { fetchPostForm } from "../../api/DataService.js";
 
-export default function BookingForm({ isModalForm }) {
-	// const { foundUser } = useContext(UserContext);
-
+export default function BookingForm({ isModalForm, username, setUsername }) {
 	const navigate = useNavigate();
 
 	const initialFormData = {
@@ -17,14 +16,15 @@ export default function BookingForm({ isModalForm }) {
 		timeStart: null,
 		timeEnd: null,
 		room: "",
-		participants: "",
 	};
 
 	// const [formData, setFormData] = useState(initialFormData);
 	const [rooms, setRooms] = useState([]);
-	const [username, setUsername] = useState("");
+	// const [username, setUsername] = useState("");
 
 	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [loading, setLoading] = useState(false);
+
 	const [form] = Form.useForm();
 
 	useEffect(() => {
@@ -54,187 +54,75 @@ export default function BookingForm({ isModalForm }) {
 		form.setFieldValue("name", username);
 	});
 
-	const handleSubmit = (values) => {
+	const handleSubmit = (formData) => {
 		const fromTimeValue = form.getFieldValue("timeStart");
 		const toTimeValue = form.getFieldValue("timeEnd");
 
 		const fromTime = fromTimeValue ? fromTimeValue.format("HH:mm") : null;
 		const toTime = toTimeValue ? toTimeValue.format("HH:mm") : null;
 
-		const formValues = form.getFieldValue();
-
 		const modifiedFormValues = {
-			...formValues,
+			...formData,
 			timeStart: fromTime,
 			timeEnd: toTime,
 		};
 
 		// console.log("fromTime: ", fromTime);
-		// console.log("form: ", modifiedFormValues.room);
+		console.log("form: ", modifiedFormValues);
+		setLoading(true);
 		try {
-			axiosInstance
-				.post("/users/rooms", {
-					modifiedFormValues,
-				})
+			fetchPostForm(modifiedFormValues)
 				.then((response) => {
-					console.log(response.data);
-					const { success, userId, formData } = response.data;
+					console.log(response);
+					const { success } = response.data;
 					if (success) {
-						localStorage.setItem(
-							"meetingData",
-							JSON.stringify(formData)
-						);
-						setIsSubmitted(true); // Update state for success message or redirection
-						// setFormData(initialFormData);
 						form.resetFields();
+						setIsSubmitted(true); // Update state for success message or redirection
+						setTimeout(() => {
+							navigate("/?submit=success", { replace: true });
+						}, 2000);
 					}
 				})
 				.catch((error) => {
-					if (error.response.status === 403) {
+					if (error.response && error.response.status === 403) {
 						localStorage.removeItem("accessToken");
 						navigate("/users/signin");
-					} else if (error.response.status === 409) {
+					} else if (
+						error.response &&
+						error.response.status === 409
+					) {
 						alert(error.response.data.message);
 					} else {
-						console.log(error);
+						console.error("An unexpected error occurred:", error);
 					}
-				});
+				})
+				.finally(() => setLoading(false));
 		} catch (error) {
 			console.log(error);
 		}
-
-		console.log("Updated form data: ", formValues);
-	};
-
-	const handleChange = (event) => {
-		console.log(event.target);
-		const { name, value } = event.target;
-		// setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 
 	// console.log("name: ", username);
 
 	return (
 		<>
-			<GenericForm
-				handleSubmit={handleSubmit}
-				username={username}
-				form={form}
-				initialFormData={initialFormData}
-				isModalForm={isModalForm}
-			/>
-			{/* <div className="flex justify-center items-center h-full">
-				<form
-					className="w-1/2 py-2 px-2 flex flex-col items-start border-2"
-					onSubmit={handleSubmit}
-				>
-					<div className="form-item">
-						<label>Meeting Topic</label>
-						<input
-							className="input-item"
-							placeholder="topic"
-							type="text"
-							name="meetingTopic"
-							value={formData.meetingTopic}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className="form-item">
-						<label>Name</label>
-						<input
-							className="input-item"
-							placeholder="name"
-							type="text"
-							name="name"
-							value={username}
-							onChange={handleChange}
-							required
-							disabled
-						/>
-					</div>
-					<div className="form-item">
-						<label>Booking Date</label>
-						<div className="flex flex-col lg:flex-row lg:items-center">
-							<input
-								className="input-item"
-								placeholder="Start date"
-								type="date"
-								name="dateStart"
-								value={formData.dateStart}
-								onChange={handleChange}
-								required
+			{isSubmitted ? (
+				<Result status="success" title="You have submitted the form." />
+			) : (
+				<Spin spinning={loading} tip="Loading" size="large">
+					<div className="bg-slate-100 min-h-screen flex justify-center items-center">
+						<div className="bg-white p-6 border-2 rounded-md shadow-md">
+							<GenericForm
+								handleSubmit={handleSubmit}
+								username={username}
+								form={form}
+								initialFormData={initialFormData}
+								isModalForm={isModalForm}
 							/>
 						</div>
 					</div>
-					<div className="form-item">
-						<label>Booking Time</label>
-						<div className="flex flex-col lg:flex-row lg:items-center">
-							<input
-								className="input-item"
-								placeholder="Start time"
-								type="time"
-								name="timeStart"
-								value={formData.timeStart}
-								onChange={handleChange}
-								min="09:00"
-								max="18:00"
-								required
-							/>
-							<span className="flex items-center mx-2">to</span>
-							<input
-								className="input-item"
-								placeholder="End time"
-								type="time"
-								name="timeEnd"
-								value={formData.timeEnd}
-								onChange={handleChange}
-								required
-							/>
-						</div>
-					</div>
-					<div className="form-item">
-						<label>Select Room</label>
-						<select
-							className="input-item"
-							onChange={handleChange}
-							value={formData.room}
-							name="room"
-							selected
-							required
-						>
-							<option value="" disabled hidden>
-								Choose room
-							</option>
-							{rooms?.map((room) => (
-								<option
-									key={room.room_id}
-									value={room.room_name}
-								>
-									{room.room_name}
-								</option>
-							))}
-						</select>
-					</div>
-					<div className="form-item">
-						<label>Participants</label>
-						<input
-							className="input-item"
-							placeholder="Attend"
-							type="text"
-							name="participants"
-							value={formData.participants}
-							onChange={handleChange}
-							required
-						/>
-					</div>
-					<div className="form-item">
-						<button className="px-4 py-2 border-2 rounded-md">
-							Submit
-						</button>
-					</div>
-				</form>
-			</div> */}
+				</Spin>
+			)}
 		</>
 	);
 }

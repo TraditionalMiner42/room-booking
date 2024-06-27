@@ -34,11 +34,13 @@ import BookingForm from "./BookingForm.js";
 // 	/* Target other calendar elements as needed */
 // `;
 
-export default function Room({ isModalForm }) {
+export default function Room({ isModalForm, username, setUsername }) {
 	console.log("Is modal form (booking nav): ", isModalForm);
 	return (
-		<div>
-			<BookingForm isModalForm={isModalForm} />
-		</div>
+		<BookingForm
+			isModalForm={isModalForm}
+			username={username}
+			setUsername={setUsername}
+		/>
 	);
 }
