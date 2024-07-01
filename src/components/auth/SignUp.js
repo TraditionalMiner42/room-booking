@@ -25,14 +25,15 @@ export default function SignUp() {
 		}
 		try {
 			// Check if username exists using the same signup endpoint
-			await signUpUser(value, "dummyPassword", true); // Use a dummy password
+			await signUpUser(value, "dummyPassword", true);
+			// Use a dummy password
 			return Promise.resolve();
 		} catch (err) {
 			// console.log(err);
 			if (err.message === "Username already exists") {
-				return Promise.reject(new Error("Username already exists"));
+				return Promise.reject(Error("Username already exists"));
 			}
-			return Promise.reject(new Error("Failed to validate username"));
+			return Promise.reject(Error("Failed to validate username"));
 		}
 	};
 
