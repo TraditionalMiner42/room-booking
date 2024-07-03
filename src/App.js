@@ -16,8 +16,6 @@ function App() {
 	const [isModalForm, setIsModalForm] = useState(false);
 	const [username, setUsername] = useState("");
 
-	useEffect(() => console.log("login state: ", isLoggedIn));
-
 	// const handleLoginSuccess = (user) => {
 	// 	setIsLoggedIn(true);
 	// 	setToken(Math.random().toString(36).substring(2, 15)); // Generate dummy token

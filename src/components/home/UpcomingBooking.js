@@ -61,8 +61,8 @@ export default function UpcomingBooking({ selectedDate, bookings }) {
 	const displayedRoomsByDate = {};
 
 	return (
-		<div className="p-10">
-			<div className="font-semibold text-2xl mb-6">การจอง</div>
+		<div className="p-10 pt-14">
+			<div className="font-semibold text-2xl my-6">Upcoming Bookings</div>
 			<Collapse
 				activeKey={activeKey}
 				onChange={handlePanelChange}

@@ -98,7 +98,7 @@ const fetchGetSignedInUser = async () => {
 
 const fetchUserBookings = async (user) => {
 	const params = {
-		userId: user[0].user_id,
+		userId: user.user_id,
 	};
 	try {
 		const response = await axiosInstance.get("/users/get_user_bookings", {

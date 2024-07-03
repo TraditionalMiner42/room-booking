@@ -110,8 +110,8 @@ export default function BookingForm({ isModalForm, username, setUsername }) {
 				<Result status="success" title="You have submitted the form." />
 			) : (
 				<Spin spinning={loading} tip="Loading" size="large">
-					<div className="bg-slate-100 min-h-screen flex justify-center items-center">
-						<div className="bg-white p-6 border-2 rounded-md shadow-md">
+					<div className="bg-gray-100 min-h-screen flex justify-center items-center">
+						<div className="bg-white p-6 border-2 rounded-md shadow-sm">
 							<GenericForm
 								handleSubmit={handleSubmit}
 								username={username}

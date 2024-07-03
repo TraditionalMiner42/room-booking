@@ -28,41 +28,18 @@ export default function SignIn() {
 		// navigate("/", { replace: true });
 	}, [navigate]);
 
-	const handleSubmitEvent = (e) => {
+	const handleSubmit = async (e) => {
 		// e.preventDefault();
 
 		try {
-			signInCurrentUser(username, password)
-				.then((response) => {
-					const { success, jwtAccessToken } = response.data;
-					if (success) {
-						// Set session information as cookies
-						// document.cookie = `user=${JSON.stringify(
-						// 	user
-						// )}; Secure; HttpOnly`;
-						// Redirect or perform any other actions
-						if (success) {
-							localStorage.setItem("accessToken", jwtAccessToken);
-							navigate("/");
-							// Perform any other actions upon successful login
-						} else {
-							setError("Invalid username or password");
-						}
-					}
-				})
-				.catch((error) => {
-					console.log(error.response);
-
-					if (
-						error.message === "Username or password is not matched"
-					) {
-						setError(error.message);
-					} else {
-						setError("An error occurred during sign-in");
-					}
-				});
+			await login(username, password);
+			navigate("/");
 		} catch (error) {
-			console.log("Error signing in.", error);
+			if (error.message === "Username or password is not matched") {
+				setError(error.message);
+			} else {
+				setError("An error occurred during sign-in");
+			}
 		}
 	};
 
@@ -79,7 +56,7 @@ export default function SignIn() {
 					name="login"
 					className="m-4 w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl p-8 bg-white shadow-md rounded-md"
 					initialValues={{ username, password }}
-					onFinish={handleSubmitEvent}
+					onFinish={handleSubmit}
 					layout="vertical">
 					<Form.Item
 						className="pb-2 pt-4"
