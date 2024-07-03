@@ -71,7 +71,11 @@ export default function OneDayBooking({
 												<div
 													className="pb-2 mt-3"
 													key={room.name}>
-													<Card>
+													<Card
+														hoverable={true}
+														style={{
+															cursor: "default",
+														}}>
 														<div className="py-2 font-bold">
 															{room.name}
 														</div>
@@ -139,9 +143,13 @@ export default function OneDayBooking({
 											? availableRoom.map(
 													(room, index) => (
 														<div
-															className="flex-1 flex-row pb-2 mt-3 cursor-pointer"
+															className="flex-1 flex-row pb-2 mt-3"
 															key={index}>
-															<Card>
+															<Card
+																hoverable={true}
+																style={{
+																	cursor: "default",
+																}}>
 																<div className="flex justify-between items-center">
 																	<div className="py-2 font-bold">
 																		{
@@ -150,7 +158,7 @@ export default function OneDayBooking({
 																	</div>
 																	<Button
 																		type="primary"
-																		className="self-center"
+																		className="self-center cursor-pointer"
 																		onClick={(
 																			e
 																		) =>
@@ -176,7 +184,11 @@ export default function OneDayBooking({
 													<div
 														className="flex-1 flex-row pb-2 mt-3 cursor-pointer"
 														key={index}>
-														<Card>
+														<Card
+															hoverable={true}
+															style={{
+																cursor: "default",
+															}}>
 															<div className="flex justify-between items-center">
 																<div className="py-2 font-bold">
 																	{
@@ -186,7 +198,7 @@ export default function OneDayBooking({
 
 																<Button
 																	type="primary"
-																	className="self-center"
+																	className="self-center cursor-pointer"
 																	onClick={(
 																		e
 																	) =>

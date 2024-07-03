@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.js";
 
 const PrivateRoute = ({ children, ...rest }) => {
-	const { isAuthenticated, login } = useAuth();
+	const { login, isAuthenticated } = useAuth();
 	const navigate = useNavigate();
 
 	return (
@@ -22,7 +22,7 @@ const PrivateRoute = ({ children, ...rest }) => {
 		// 	{...rest}
 		// 	element={isAuthenticated ? <Element /> : navigate("/users/signin")}
 		// />
-		login ? children : navigate("/users/signin")
+		isAuthenticated ? children : navigate("/users/signin")
 	);
 };
 

@@ -1,23 +1,60 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { signInCurrentUser } from "../../api/DataService.js";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [authState, setAuthState] = useState({
+		isAuthenticated: false,
+		token: null,
+	});
 
-	const login = async (credentials) => {
+	//
+	const login = async (username, password) => {
 		try {
-			setIsAuthenticated(true);
-		} catch (error) {}
+			const response = await signInCurrentUser(username, password);
+			const token = response.data.jwtAccessToken;
+			// Set token with localStorage after API request
+			localStorage.setItem("accessToken", token);
+			setAuthState({
+				isAuthenticated: true,
+				token: token,
+			});
+		} catch (error) {
+			if (error.response && error.response.status === 500) {
+				throw new Error(error.message);
+			}
+			console.error("Error post sign-in: ", error);
+			throw new Error("Failed to sign in");
+		}
 	};
 
 	const logout = () => {
-		// Your logic to set isAuthenticated to false, usually after user logs out
-		setIsAuthenticated(false);
+		// Set isAuthenticated to false, usually after user logs out
+		localStorage.removeItem("accessToken");
+		setAuthState({
+			isAuthenticated: false,
+			token: null,
+		});
 	};
 
+	// Function to check authentication status based on token presence
+	const checkAuth = () => {
+		const token = localStorage.getItem("accessToken");
+		return !!token; // Convert token presence to boolean
+	};
+
+	useEffect(() => {
+		// Initialize authentication state
+		setAuthState({
+			isAuthenticated: checkAuth(),
+			token: localStorage.getItem("accessToken"),
+		});
+	}, []); // Empty dependency array to run only once on mount
+
 	return (
-		<AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+		// Values can be used across other components
+		<AuthContext.Provider value={{ ...authState, login, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);
