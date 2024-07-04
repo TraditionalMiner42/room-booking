@@ -54,11 +54,11 @@ export default function EditEachBooking({
 		}
 	};
 
-	const onUpdateData = (e) => {
+	const onUpdateData = async (e) => {
 		setLoading(true);
 		try {
 			console.log("booking id: ", bookingId);
-			insertParticipantsAndBeverages(meal, bookingId, true)
+			await insertParticipantsAndBeverages(meal, bookingId, true)
 				.then((response) => {
 					const { success, message } = response.data;
 					if (success) {

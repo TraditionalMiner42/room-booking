@@ -1,8 +1,11 @@
 import { Button, Descriptions } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { getParticipantsAndBeverage } from "../../api/DataService.js";
 import { createPortal } from "react-dom";
+import { jsPDF } from "jspdf";
+import { font } from "../../assets/fonts/Base64Font.js";
 
 export default function EachBooking({
 	index,
@@ -54,6 +57,44 @@ export default function EachBooking({
 		console.log("Bookings or selectedBooking is not available yet.");
 	}
 
+	var callAddFont = function () {
+		this.addFileToVFS("NotoSansThai-Regular.ttf", font);
+		this.addFont("NotoSansThai-Regular.ttf", "NotoSansThai", "normal");
+	};
+	jsPDF.API.events.push(["addFonts", callAddFont]);
+
+	const generatePDF = () => {
+		const doc = new jsPDF();
+
+		doc.setFont("NotoSansThai");
+
+		doc.text("Booking Details", 10, 10);
+		doc.text(`Booking Date: ${bookingDate}`, 10, 20);
+		doc.text(`Time: ${bookingStartTime} - ${bookingEndTime}`, 10, 30);
+		doc.text(`Room Name: ${selectedBooking.room_name}`, 10, 40);
+
+		let x = 10;
+		let yPart = 60;
+		filteredBookings.forEach((booking, index) => {
+			if (index === 0) {
+				doc.text(`Participants: `, 10, 50);
+			}
+			doc.text(`${booking.participant_name}`, 10, yPart);
+			yPart += 10;
+		});
+
+		let yDrinks = 60;
+		filteredBookings.forEach((booking, index) => {
+			if (index === 0) {
+				doc.text(`Drinks: `, 125, 50);
+			}
+			doc.text(`${booking.beverage}`, 125, yDrinks);
+			yDrinks += 10;
+		});
+
+		doc.save("booking-details.pdf");
+	};
+
 	// useEffect(() => console.log(bookings));
 
 	return (
@@ -86,14 +127,20 @@ export default function EachBooking({
 					</React.Fragment>
 				))}
 			</Descriptions>
-			<div className="ant-btn flex flex-row justify-center">
+			<div className="ant-btn mt-2 flex flex-row justify-between">
+				<DownloadOutlined
+					className="antd-icon cursor-pointer"
+					onClick={generatePDF}></DownloadOutlined>
+
 				{showBackButton && (
-					<Button
-						className="mx-4"
-						type="primary"
-						onClick={toPreviousMainModal}>
-						Back
-					</Button>
+					<>
+						<Button
+							className="mx-4"
+							type="primary"
+							onClick={toPreviousMainModal}>
+							Back
+						</Button>
+					</>
 				)}
 			</div>
 		</>

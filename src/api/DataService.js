@@ -153,6 +153,18 @@ const getParticipantsAndBeverage = async () => {
 	}
 };
 
+const deleteBookingFromTable = async (bookingId) => {
+	try {
+		const response = await axiosInstance.delete(
+			`/users/delete_booking/${bookingId}`
+		);
+		return response;
+	} catch (error) {
+		console.log("Error delete selected booking: ", error);
+		throw error;
+	}
+};
+
 export {
 	signInCurrentUser,
 	signUpUser,
@@ -163,4 +175,5 @@ export {
 	fetchUserBookings,
 	insertParticipantsAndBeverages,
 	getParticipantsAndBeverage,
+	deleteBookingFromTable,
 };

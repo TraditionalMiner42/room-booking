@@ -80,10 +80,9 @@ export default function SignUp() {
 					title="You have signed up successfully"></Result>
 			) : (
 				<>
-					<div className="background"></div>
 					<div>
 						<Spin spinning={loading} tip="Loading" size="large">
-							<div className="flex flex-col justify-start items-center min-h-screen">
+							<div className="flex flex-col justify-start items-center min-h-screen bg-gray-100">
 								{/* Change welcoming text later */}
 								<div className="py-8 px-4 m-4 text-center text-2xl tracking-widest">
 									Register Page

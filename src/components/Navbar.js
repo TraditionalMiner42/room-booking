@@ -6,7 +6,7 @@ function Navbar() {
 	const navigate = useNavigate();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState(null);
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, logout } = useAuth();
 
 	const toggleDropdown = () => {
 		setIsDropdownOpen(!isDropdownOpen);
@@ -49,7 +49,10 @@ function Navbar() {
 									activeItem === item.path ? "active" : ""
 								}`}
 								to={item.path}
-								onClick={() => setActiveItem(item.path)}>
+								onClick={() => {
+									setActiveItem(item.path);
+									item.label === "Log out" && logout();
+								}}>
 								{item.label}
 							</Link>
 						);

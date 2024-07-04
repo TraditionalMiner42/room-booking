@@ -15,6 +15,7 @@ export default function HomeForm({
 	username,
 	setUsername,
 	toPreviousMainModal,
+	setSubModalVisible,
 }) {
 	// const { foundUser } = useContext(UserContext);
 	const navigate = useNavigate();
@@ -89,6 +90,7 @@ export default function HomeForm({
 						form.resetFields();
 						setIsSubmitted(true);
 						setTimeout(() => {
+							setSubModalVisible(false);
 							navigate("/?submit=success", { replace: true });
 						}, 2000);
 					}

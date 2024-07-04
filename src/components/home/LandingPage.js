@@ -1,17 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../../axiosInstance.js";
 import moment from "moment";
-import { Badge, Calendar, Modal, Col, Row, Button, Result } from "antd";
+import { Badge, Calendar, Modal } from "antd";
 import HomeForm from "./HomeForm.js";
 import UpcomingBooking from "./UpcomingBooking.js";
 import { jwtDecode } from "jwt-decode";
-import {
-	fetchBookings,
-	fetchGetBookings,
-	fetchGetRooms,
-	fetchRooms,
-} from "../../api/DataService.js";
+import { fetchGetBookings, fetchGetRooms } from "../../api/DataService.js";
 import EachBooking from "./EachBooking.js";
 import OneDayBooking from "./OneDayBookings.js";
 import { createPortal } from "react-dom";
@@ -44,7 +38,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 			navigate("/", { replace: true });
 			window.location.reload();
 		}
-	}, [navigate]);
+	}, [navigate, subModalVisible]);
 
 	useEffect(() => {
 		console.log("sub modal visible: ", subModalVisible);
@@ -292,7 +286,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 					<Modal
 						open={subModalVisible}
 						onCancel={(e) => setSubModalVisible(false)}
-						footer={null}>
+						footer={false}>
 						<HomeForm
 							roomId={selectedRoomId}
 							roomName={selectedRoomName}
@@ -301,6 +295,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 							username={username}
 							setUsername={setUsername}
 							toPreviousMainModal={toPreviousMainModal}
+							setSubModalVisible={setSubModalVisible}
 						/>
 					</Modal>,
 					document.getElementById("form-modal")

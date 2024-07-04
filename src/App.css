@@ -59,6 +59,9 @@
   .input-item {
       @apply rounded-md p-1 my-1
   }
+  .antd-icon {
+    font-size: 20px !important;
+  }
 }
 
 .App {

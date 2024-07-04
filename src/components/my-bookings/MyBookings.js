@@ -10,6 +10,8 @@ import moment from "moment";
 import EditEachBooking from "./EditEachBooking.js";
 import EachBooking from "../home/EachBooking.js";
 import { createPortal } from "react-dom";
+import { EditOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import DeleteBooking from "./DeleteBooking.js";
 
 export default function MyBooking({ username, setUsername }) {
 	const navigate = useNavigate();
@@ -18,6 +20,7 @@ export default function MyBooking({ username, setUsername }) {
 	const [selectedBookingIndex, setSelectedBookingIndex] = useState(null); // Track the index of the selected booking
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [viewModalVisible, setViewModalVisible] = useState(false);
+	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -26,9 +29,13 @@ export default function MyBooking({ username, setUsername }) {
 			setEditModalVisible(true);
 		} else if (action === "view") {
 			setViewModalVisible(true);
+		} else if (action === "delete") {
+			setDeleteModalVisible(true);
 		}
 		setSelectedBookingIndex(index);
 	};
+
+	useEffect(() => console.log(selectedBookingIndex), [selectedBookingIndex]);
 
 	useEffect(() => {
 		const token = localStorage.getItem("accessToken");
@@ -167,22 +174,21 @@ export default function MyBooking({ username, setUsername }) {
 								align="right"
 								render={(text, record, index) => (
 									<div className="flex flex-row">
-										<Button
-											className="border mr-4"
-											type="primary"
+										<EditOutlined
+											className="antd-icon mr-4"
 											onClick={() =>
 												onSubModal(index, "edit")
-											}>
-											Edit
-										</Button>
-										<Button
-											className="border"
-											type="primary"
+											}></EditOutlined>
+										<EyeOutlined
+											className="antd-icon mr-4"
 											onClick={() =>
 												onSubModal(index, "view")
-											}>
-											View
-										</Button>
+											}></EyeOutlined>
+										<DeleteOutlined
+											className="antd-icon"
+											onClick={() =>
+												onSubModal(index, "delete")
+											}></DeleteOutlined>
 									</div>
 								)}
 							/>
@@ -252,6 +258,23 @@ export default function MyBooking({ username, setUsername }) {
 								/>
 							</Modal>,
 							document.getElementById("view-detail-modal")
+						)}
+					<div id="delete-modal"></div>
+					{selectedBookingIndex !== null &&
+						deleteModalVisible &&
+						createPortal(
+							<DeleteBooking
+								deleteModalVisible={deleteModalVisible}
+								setDeleteModalVisible={setDeleteModalVisible}
+								setSelectedBookingIndex={
+									setSelectedBookingIndex
+								}
+								bookingId={
+									userBookings[selectedBookingIndex]
+										.booking_id
+								}
+							/>,
+							document.getElementById("delete-modal")
 						)}
 				</div>
 			</div>
