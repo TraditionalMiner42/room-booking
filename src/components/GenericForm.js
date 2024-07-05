@@ -140,6 +140,7 @@ export default function GenericForm({
 							<Form.Item name="timeStart">
 								<TimePicker
 									name="timeStart"
+									defaultValue={moment("08:00", "HH:mm")}
 									placeholder="Start time"
 									disabledHours={disabledHours}
 									minuteStep={15}
@@ -150,6 +151,7 @@ export default function GenericForm({
 							<Form.Item name="timeEnd">
 								<TimePicker
 									name="timeEnd"
+									defaultValue={moment("08:00", "HH:mm")}
 									placeholder="End time"
 									disabledHours={disabledHours}
 									minuteStep={15}

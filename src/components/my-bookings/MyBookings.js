@@ -78,7 +78,6 @@ export default function MyBooking({ username, setUsername }) {
 		if (value === "success") {
 			navigate("/users/bookings");
 			setSuccessAlert(false);
-			window.location.reload();
 		}
 	}, [navigate]);
 
@@ -226,6 +225,9 @@ export default function MyBooking({ username, setUsername }) {
 										}
 										successAlert={successAlert}
 										setSuccessAlert={setSuccessAlert}
+										setEditModalVisible={
+											setEditModalVisible
+										}
 									/>
 								</Modal>
 							),

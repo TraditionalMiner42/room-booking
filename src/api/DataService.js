@@ -124,11 +124,12 @@ const fetchPostForm = async (formData) => {
 	}
 };
 
-const insertParticipantsAndBeverages = async (meal, bookingId) => {
+const insertParticipantsAndBeverages = async (meal, bookingId, editedTopic) => {
 	try {
 		const response = await axiosInstance.post("/users/add_more", {
 			meal,
 			bookingId,
+			editedTopic,
 		});
 		return response;
 	} catch (error) {

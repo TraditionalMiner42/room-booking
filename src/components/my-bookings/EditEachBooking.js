@@ -17,6 +17,7 @@ export default function EditEachBooking({
 	bookingId,
 	successAlert,
 	setSuccessAlert,
+	setEditModalVisible,
 }) {
 	const navigate = useNavigate();
 	const [topicInputState, setTopicInputState] = useState(false);
@@ -58,12 +59,19 @@ export default function EditEachBooking({
 		setLoading(true);
 		try {
 			console.log("booking id: ", bookingId);
-			await insertParticipantsAndBeverages(meal, bookingId, true)
+			console.log("break meal: ", meal);
+			await insertParticipantsAndBeverages(
+				meal,
+				bookingId,
+				editedTopic,
+				true
+			)
 				.then((response) => {
 					const { success, message } = response.data;
 					if (success) {
 						setSuccessAlert(!successAlert);
 						setMeal([{ name: "", drink: "" }]);
+						setEditModalVisible(false);
 						setTimeout(() => {
 							navigate("/users/bookings/?submit=success");
 						}, 2000);
@@ -81,7 +89,7 @@ export default function EditEachBooking({
 	};
 
 	const onSave = (e) => {
-		setTopicInputState(false);
+		console.log("changed topic: ", editedTopic);
 	};
 
 	return (
