@@ -3,7 +3,6 @@ import GenericForm from "../GenericForm.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../axiosInstance.js";
-import moment from "moment";
 import { fetchPostForm } from "../../api/DataService.js";
 import { jwtDecode } from "jwt-decode";
 
@@ -54,7 +53,6 @@ export default function HomeForm({
 		};
 
 		fetchRooms();
-		console.log("Meeting rooms: ", rooms);
 	}, []);
 
 	form.setFieldValue("name", username);
