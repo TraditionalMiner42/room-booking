@@ -10,6 +10,7 @@ import { AuthProvider } from "./components/context/AuthContext.js";
 import PrivateRoute from "./components/PrivateRoute.js";
 import PageException from "./components/PageException.js";
 import MyBooking from "./components/my-bookings/MyBookings.js";
+import BookingForm from "./components/room/BookingForm.js";
 
 function App() {
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,18 +38,6 @@ function App() {
 							element={
 								<PrivateRoute>
 									<LandingPage
-										isModalForm={!isModalForm}
-										username={username}
-										setUsername={setUsername}
-									/>
-								</PrivateRoute>
-							}
-						/>
-						<Route
-							path="users/rooms"
-							element={
-								<PrivateRoute>
-									<Room
 										isModalForm={isModalForm}
 										username={username}
 										setUsername={setUsername}
@@ -56,6 +45,18 @@ function App() {
 								</PrivateRoute>
 							}
 						/>
+						{/* <Route
+							path="users/rooms"
+							element={
+								<PrivateRoute>
+									<BookingForm
+										isModalForm={isModalForm}
+										username={username}
+										setUsername={setUsername}
+									/>
+								</PrivateRoute>
+							}
+						/> */}
 						<Route
 							path="users/bookings"
 							element={

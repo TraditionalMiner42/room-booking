@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Badge, Calendar, Modal } from "antd";
+import { Badge, Calendar, Modal, Result, Spin } from "antd";
 import HomeForm from "./HomeForm.js";
 import UpcomingBooking from "./UpcomingBooking.js";
 import { jwtDecode } from "jwt-decode";
 import { fetchGetBookings, fetchGetRooms } from "../../api/DataService.js";
 import EachBooking from "./EachBooking.js";
 import OneDayBooking from "./OneDayBookings.js";
+import BookingForm from "../room/BookingForm.js";
 import { createPortal } from "react-dom";
 
 function LandingPage({ isModalForm, username, setUsername }) {
@@ -23,7 +24,9 @@ function LandingPage({ isModalForm, username, setUsername }) {
 	const [detailModalVisible, setDetailModalVisible] = useState(false);
 
 	const [currentBookingIndex, setCurrentBookingIndex] = useState(null);
-	// const [isSubmitted, setIsSubmitted] = useState(false);
+
+	const [loading, setLoading] = useState(false);
+	const [isSubmitted, setIsSubmitted] = useState(false);
 
 	const navigate = useNavigate();
 
@@ -36,7 +39,9 @@ function LandingPage({ isModalForm, username, setUsername }) {
 			console.log(value);
 			// Clear the URL parameter after processing
 			navigate("/", { replace: true });
-			window.location.reload();
+			setTimeout(() => {
+				window.location.reload();
+			}, 2000);
 		}
 	}, [navigate, subModalVisible]);
 
@@ -215,91 +220,122 @@ function LandingPage({ isModalForm, username, setUsername }) {
 
 	return (
 		<>
-			<UpcomingBooking selectedDate={selectedDate} bookings={bookings} />
-			<div className="px-10">
-				<Calendar
-					headerRender={({ value, type, onChange, onTypeChange }) => (
-						<CustomHeader
-							value={value}
-							type={type}
-							onChange={onChange}
-							onTypeChange={onTypeChange}
-						/>
-					)}
-					cellRender={dateCellRender}
-					onSelect={(date, { source }) => {
-						if (source === "date") {
-							console.log("Date: ", date);
-							handleDateSelect(date);
-						}
-					}}></Calendar>
-			</div>
-			<div id="main-modal"></div>
-			<OneDayBooking
-				mainModalVisible={mainModalVisible}
-				setMainModalVisible={setMainModalVisible}
-				filteredBookings={filteredBookings}
-				setSelectedBooking={setSelectedBooking}
-				setCurrentBookingIndex={setCurrentBookingIndex}
-				selectedDate={selectedDate}
-				rooms={rooms}
-				availableRoom={availableRoom}
-				onDetailModal={onDetailModal}
-				onSubModal={onSubModal}
-			/>
-
-			{/* {console.log("selected booking: ", selectedBooking)} */}
-			<div id="detail-modal"></div>
-			{filteredBookings.map(
-				(booking, index) =>
-					detailModalVisible &&
-					currentBookingIndex === index &&
-					createPortal(
-						<Modal
-							key={index} // Make sure to provide a unique key
-							open={detailModalVisible}
-							onCancel={(e) => {
-								setDetailModalVisible(false);
-								setCurrentBookingIndex(null);
-							}}
-							footer={null}>
-							<EachBooking
-								index={index}
-								detailModalVisible={detailModalVisible}
-								setDetailModalVisible={setDetailModalVisible}
-								setCurrentBookingIndex={setCurrentBookingIndex}
-								key={currentBookingIndex} // Ensure EachBooking components have unique keys
-								selectedBooking={selectedBooking}
-								roomId={selectedRoomId}
-								roomName={selectedRoomName}
-								username={username}
-								toPreviousMainModal={toPreviousMainModal}
-							/>
-						</Modal>,
-						document.getElementById("detail-modal")
-					)
-			)}
-
-			<div id="form-modal"></div>
-			{subModalVisible &&
-				createPortal(
-					<Modal
-						open={subModalVisible}
-						onCancel={(e) => setSubModalVisible(false)}
-						footer={false}>
-						<HomeForm
-							roomId={selectedRoomId}
-							roomName={selectedRoomName}
+			{isSubmitted ? (
+				<Result status="success" title="You have submitted the form." />
+			) : (
+				<Spin spinning={loading} tip="Loading" size="large">
+					<div className="flex flex-row">
+						<UpcomingBooking
 							selectedDate={selectedDate}
+							bookings={bookings}
+						/>
+						<BookingForm
 							isModalForm={isModalForm}
 							username={username}
 							setUsername={setUsername}
-							toPreviousMainModal={toPreviousMainModal}
-							setSubModalVisible={setSubModalVisible}
+							loading={loading}
+							setLoading={setLoading}
+							isSubmitted={isSubmitted}
+							setIsSubmitted={isSubmitted}
 						/>
-					</Modal>,
-					document.getElementById("form-modal")
-				)}
+					</div>
+					<div className="px-10">
+						<Calendar
+							headerRender={({
+								value,
+								type,
+								onChange,
+								onTypeChange,
+							}) => (
+								<CustomHeader
+									value={value}
+									type={type}
+									onChange={onChange}
+									onTypeChange={onTypeChange}
+								/>
+							)}
+							cellRender={dateCellRender}
+							onSelect={(date, { source }) => {
+								if (source === "date") {
+									console.log("Date: ", date);
+									handleDateSelect(date);
+								}
+							}}></Calendar>
+					</div>
+					<div id="main-modal"></div>
+					<OneDayBooking
+						mainModalVisible={mainModalVisible}
+						setMainModalVisible={setMainModalVisible}
+						filteredBookings={filteredBookings}
+						setSelectedBooking={setSelectedBooking}
+						setCurrentBookingIndex={setCurrentBookingIndex}
+						selectedDate={selectedDate}
+						rooms={rooms}
+						availableRoom={availableRoom}
+						onDetailModal={onDetailModal}
+						onSubModal={onSubModal}
+					/>
+
+					{/* {console.log("selected booking: ", selectedBooking)} */}
+					<div id="detail-modal"></div>
+					{filteredBookings.map(
+						(booking, index) =>
+							detailModalVisible &&
+							currentBookingIndex === index &&
+							createPortal(
+								<Modal
+									key={index} // Make sure to provide a unique key
+									open={detailModalVisible}
+									onCancel={(e) => {
+										setDetailModalVisible(false);
+										setCurrentBookingIndex(null);
+									}}
+									footer={null}>
+									<EachBooking
+										index={index}
+										detailModalVisible={detailModalVisible}
+										setDetailModalVisible={
+											setDetailModalVisible
+										}
+										setCurrentBookingIndex={
+											setCurrentBookingIndex
+										}
+										key={currentBookingIndex} // Ensure EachBooking components have unique keys
+										selectedBooking={selectedBooking}
+										roomId={selectedRoomId}
+										roomName={selectedRoomName}
+										username={username}
+										toPreviousMainModal={
+											toPreviousMainModal
+										}
+									/>
+								</Modal>,
+								document.getElementById("detail-modal")
+							)
+					)}
+
+					<div id="form-modal"></div>
+					{subModalVisible &&
+						createPortal(
+							<Modal
+								open={subModalVisible}
+								onCancel={(e) => setSubModalVisible(false)}
+								footer={false}>
+								<HomeForm
+									roomId={selectedRoomId}
+									roomName={selectedRoomName}
+									selectedDate={selectedDate}
+									isModalForm={!isModalForm}
+									username={username}
+									setUsername={setUsername}
+									toPreviousMainModal={toPreviousMainModal}
+									setSubModalVisible={setSubModalVisible}
+								/>
+							</Modal>,
+							document.getElementById("form-modal")
+						)}
+				</Spin>
+			)}
 		</>
 	);
 }

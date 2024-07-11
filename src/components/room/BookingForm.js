@@ -6,7 +6,15 @@ import GenericForm from "../GenericForm.js";
 import { Form, Result, Spin } from "antd";
 import { fetchPostForm } from "../../api/DataService.js";
 
-export default function BookingForm({ isModalForm, username, setUsername }) {
+export default function BookingForm({
+	isModalForm,
+	username,
+	setUsername,
+	loading,
+	setLoading,
+	isSubmitted,
+	setIsSubmitted,
+}) {
 	const navigate = useNavigate();
 
 	const initialFormData = {
@@ -22,8 +30,8 @@ export default function BookingForm({ isModalForm, username, setUsername }) {
 	const [rooms, setRooms] = useState([]);
 	// const [username, setUsername] = useState("");
 
-	const [isSubmitted, setIsSubmitted] = useState(false);
-	const [loading, setLoading] = useState(false);
+	// const [isSubmitted, setIsSubmitted] = useState(false);
+	// const [loading, setLoading] = useState(false);
 
 	const [form] = Form.useForm();
 
@@ -106,23 +114,17 @@ export default function BookingForm({ isModalForm, username, setUsername }) {
 
 	return (
 		<>
-			{isSubmitted ? (
-				<Result status="success" title="You have submitted the form." />
-			) : (
-				<Spin spinning={loading} tip="Loading" size="large">
-					<div className="bg-gray-100 min-h-screen flex justify-center items-center">
-						<div className="bg-white p-6 border-2 rounded-md shadow-sm">
-							<GenericForm
-								handleSubmit={handleSubmit}
-								username={username}
-								form={form}
-								initialFormData={initialFormData}
-								isModalForm={isModalForm}
-							/>
-						</div>
-					</div>
-				</Spin>
-			)}
+			<div className="pt-[136px] pb-6">
+				<div className="bg-white border rounded-md shadow-md">
+					<GenericForm
+						handleSubmit={handleSubmit}
+						username={username}
+						form={form}
+						initialFormData={initialFormData}
+						isModalForm={isModalForm}
+					/>
+				</div>
+			</div>
 		</>
 	);
 }

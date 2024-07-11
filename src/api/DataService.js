@@ -114,7 +114,7 @@ const fetchUserBookings = async (user) => {
 const fetchPostForm = async (formData) => {
 	try {
 		console.log("form data: ", formData);
-		const response = await axiosInstance.post("/users/rooms", {
+		const response = await axiosInstance.post("/", {
 			modifiedFormValues: formData,
 		});
 		return response;

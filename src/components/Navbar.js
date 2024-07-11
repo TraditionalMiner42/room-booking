@@ -17,7 +17,6 @@ function Navbar() {
 			path: "/",
 			label: "Home",
 		},
-		{ path: "/users/rooms", label: "Book a Room" },
 		{
 			path: "/users/bookings",
 			label: "My Booking",
@@ -25,7 +24,7 @@ function Navbar() {
 			// 	{ path: "/users/booking/history", label: "Booking History" },
 			// 	{
 			// 		path: "/users/signin",
-			// 		label: "Log Out",
+			// 		label: "Log Out
 			// 	},
 			// ],
 		},
