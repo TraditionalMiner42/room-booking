@@ -83,12 +83,15 @@ export default function BookingForm({
 				.then((response) => {
 					console.log(response);
 					const { success } = response.data;
+					setLoading(false);
+					console.log("success value: ", success);
+
 					if (success) {
 						form.resetFields();
 						setIsSubmitted(true); // Update state for success message or redirection
-						setTimeout(() => {
-							navigate("/?submit=success", { replace: true });
-						}, 2000);
+						console.log("test....");
+						navigate("/?submit=success", { replace: true });
+						setIsSubmitted(false);
 					}
 				})
 				.catch((error) => {
@@ -103,8 +106,7 @@ export default function BookingForm({
 					} else {
 						console.error("An unexpected error occurred:", error);
 					}
-				})
-				.finally(() => setLoading(false));
+				});
 		} catch (error) {
 			console.log(error);
 		}

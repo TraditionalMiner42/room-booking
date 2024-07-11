@@ -39,9 +39,8 @@ function LandingPage({ isModalForm, username, setUsername }) {
 			console.log(value);
 			// Clear the URL parameter after processing
 			navigate("/", { replace: true });
-			setTimeout(() => {
-				window.location.reload();
-			}, 2000);
+
+			window.location.reload();
 		}
 	}, [navigate, subModalVisible]);
 
@@ -236,7 +235,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 							loading={loading}
 							setLoading={setLoading}
 							isSubmitted={isSubmitted}
-							setIsSubmitted={isSubmitted}
+							setIsSubmitted={setIsSubmitted}
 						/>
 					</div>
 					<div className="px-10">
