@@ -26,11 +26,11 @@ const signInCurrentUser = async (
 			return response;
 		}
 	} catch (error) {
-		if (error.response && error.response.status === 500) {
+		if (error.response.status === 500) {
 			throw new Error("Username or password is not matched");
+		} else {
+			throw new Error("Failed to sign in");
 		}
-		console.error("Error post sign-in: ", error);
-		throw new Error("Failed to sign in");
 	}
 };
 

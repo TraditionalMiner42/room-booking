@@ -1,26 +1,19 @@
-import { Routes, Route, Outlet, Router } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import LandingPage from "./components/home/LandingPage.js";
 import SignIn from "./components/auth/SignIn.js";
 import SignUp from "./components/auth/SignUp.js";
 import "./App.css";
 import Navbar from "./components/Navbar.js";
-import { useEffect, useState } from "react";
-import Room from "./components/room/Room.js";
+import { useState } from "react";
 import { AuthProvider } from "./components/context/AuthContext.js";
 import PrivateRoute from "./components/PrivateRoute.js";
 import PageException from "./components/PageException.js";
 import MyBooking from "./components/my-bookings/MyBookings.js";
-import BookingForm from "./components/room/BookingForm.js";
 
 function App() {
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [isModalForm, setIsModalForm] = useState(false);
 	const [username, setUsername] = useState("");
 
-	// const handleLoginSuccess = (user) => {
-	// 	setIsLoggedIn(true);
-	// 	setToken(Math.random().toString(36).substring(2, 15)); // Generate dummy token
-	// };
 	return (
 		<div className="font-NotoSansThai">
 			<AuthProvider>
@@ -45,20 +38,8 @@ function App() {
 								</PrivateRoute>
 							}
 						/>
-						{/* <Route
-							path="users/rooms"
-							element={
-								<PrivateRoute>
-									<BookingForm
-										isModalForm={isModalForm}
-										username={username}
-										setUsername={setUsername}
-									/>
-								</PrivateRoute>
-							}
-						/> */}
 						<Route
-							path="users/bookings"
+							path="/users/bookings"
 							element={
 								<PrivateRoute>
 									<MyBooking

@@ -1,13 +1,16 @@
 import { Modal } from "antd";
 import { deleteBookingFromTable } from "../../api/DataService.js";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function DeleteBooking({
 	deleteModalVisible,
 	setDeleteModalVisible,
 	setSelectedBookingIndex,
 	bookingId,
+	onSubmissionSuccess,
 }) {
+	const navigate = useNavigate();
 	const [error, setError] = useState(false);
 
 	const deleteSelectedBooking = async (bookingId) => {
@@ -18,7 +21,13 @@ export default function DeleteBooking({
 				.then((response) => {
 					const { success } = response.data;
 					if (success) {
-						window.location.reload();
+						setDeleteModalVisible(false);
+						setTimeout(() => {
+							onSubmissionSuccess();
+							navigate("/users/bookings/?submit=success", {
+								replace: true,
+							});
+						}, 2000);
 					}
 				})
 				.catch((error) => {

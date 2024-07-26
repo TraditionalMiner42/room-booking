@@ -1,16 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.js";
 
 function Navbar() {
-	const navigate = useNavigate();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [activeItem, setActiveItem] = useState(null);
 	const { isAuthenticated, logout } = useAuth();
-
-	const toggleDropdown = () => {
-		setIsDropdownOpen(!isDropdownOpen);
-	};
 
 	const navItems = [
 		{

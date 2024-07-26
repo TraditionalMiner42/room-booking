@@ -1,6 +1,5 @@
 import axiosInstance from "../axiosInstance.js";
-import { useNavigate } from "react-router-dom";
-import { Form, Input, Select, Button, TimePicker, DatePicker } from "antd";
+import { Form, Input, Select, Button, TimePicker, Alert } from "antd";
 import { useEffect, useState } from "react";
 import moment from "moment";
 
@@ -14,6 +13,8 @@ export default function GenericForm({
 	selectedDate,
 	isModalForm,
 	toPreviousMainModal,
+	alertMessage,
+	setAlertMessage,
 }) {
 	const [rooms, setRooms] = useState([]);
 
@@ -40,14 +41,6 @@ export default function GenericForm({
 			.slice(0, 8)
 			.concat(Array.from({ length: 24 }, (v, k) => k).slice(17)); // Disable hours before 9 AM and after 4 PM
 	};
-
-	// const disabledMinutes = (selectedHour) => {
-	// 	// Disable all minutes if the selected hour is the minimum hour
-	// 	if (selectedHour === 8) {
-	// 		return Array.from({ length: 60 }, (v, k) => k);
-	// 	}
-	// 	return [];
-	// };
 
 	return (
 		<>
@@ -117,7 +110,7 @@ export default function GenericForm({
 					{isModalForm ? (
 						<Input value={selectedDate} disabled />
 					) : (
-						<Input format="YYYY-MM-DD" type="date" required />
+						<Input format="DD-MM-YYYY" type="date" required />
 					)}
 				</Form.Item>
 				<Form.Item
@@ -209,6 +202,14 @@ export default function GenericForm({
 						""
 					)}
 				</Form.Item>
+				{alertMessage && (
+					<Alert
+						type="error"
+						message={alertMessage}
+						onClose={() => setAlertMessage(null)}
+						closable
+					/>
+				)}
 			</Form>
 		</>
 	);

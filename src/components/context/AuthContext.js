@@ -10,9 +10,9 @@ export const AuthProvider = ({ children }) => {
 	});
 
 	//
-	const login = async (username, password) => {
+	const login = (username, password) => {
 		try {
-			const response = await signInCurrentUser(username, password);
+			const response = signInCurrentUser(username, password);
 			const token = response.data.jwtAccessToken;
 			// Set token with localStorage after API request
 			localStorage.setItem("accessToken", token);
@@ -21,11 +21,10 @@ export const AuthProvider = ({ children }) => {
 				token: token,
 			});
 		} catch (error) {
-			if (error.response && error.response.status === 500) {
-				throw new Error(error.message);
+			console.log(error.message);
+			if (error.message) {
+				throw Error(error.message);
 			}
-			console.error("Error post sign-in: ", error);
-			throw new Error("Failed to sign in");
 		}
 	};
 

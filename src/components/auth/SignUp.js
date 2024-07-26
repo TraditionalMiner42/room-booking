@@ -1,9 +1,8 @@
-import { Button, Form, Input, Modal, Result } from "antd";
+import { Button, Form, Input, Result } from "antd";
 import Spin from "antd/es/spin/index.js";
 import "antd/es/spin/style/index.js";
-import axios from "axios";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { signUpUser } from "../../api/DataService.js";
 
 export default function SignUp() {
@@ -19,13 +18,13 @@ export default function SignUp() {
 	useEffect(() => console.log("loading: ", loading));
 
 	// Validator function to check if username exists
-	const validateUsername = async (_, value) => {
+	const validateUsername = (_, value) => {
 		if (!value) {
 			return Promise.resolve();
 		}
 		try {
 			// Check if username exists using the same signup endpoint
-			await signUpUser(value, "dummyPassword", true);
+			signUpUser(value, "dummyPassword", true);
 			// Use a dummy password
 			return Promise.resolve();
 		} catch (err) {

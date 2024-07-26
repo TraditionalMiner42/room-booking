@@ -1,4 +1,4 @@
-import { Alert, Form, Result, Spin } from "antd";
+import { Form, Result, Spin } from "antd";
 import GenericForm from "../GenericForm.js";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ export default function HomeForm({
 	setUsername,
 	toPreviousMainModal,
 	setSubModalVisible,
+	onSubmissionSuccess,
 }) {
 	// const { foundUser } = useContext(UserContext);
 	const navigate = useNavigate();
@@ -88,7 +89,9 @@ export default function HomeForm({
 						form.resetFields();
 						setIsSubmitted(true);
 						setTimeout(() => {
+							setIsSubmitted(false);
 							setSubModalVisible(false);
+							onSubmissionSuccess();
 							navigate("/?submit=success", { replace: true });
 						}, 2000);
 					}
@@ -130,15 +133,9 @@ export default function HomeForm({
 							selectedDate={selectedDate}
 							isModalForm={isModalForm}
 							toPreviousMainModal={toPreviousMainModal}
+							alertMessage={alertMessage}
+							setAlertMessage={setAlertMessage}
 						/>
-						{alertMessage && (
-							<Alert
-								type="error"
-								message={alertMessage}
-								onClose={() => setAlertMessage(null)}
-								closable
-							/>
-						)}
 					</Spin>
 				</>
 			)}

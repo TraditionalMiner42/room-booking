@@ -3,7 +3,6 @@ import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { getParticipantsAndBeverage } from "../../api/DataService.js";
-import { createPortal } from "react-dom";
 import { jsPDF } from "jspdf";
 import { font } from "../../assets/fonts/Base64Font.js";
 
@@ -34,8 +33,6 @@ export default function EachBooking({
 	).format("HH:mm");
 
 	useEffect(() => {
-		console.log(selectedBooking);
-
 		try {
 			getParticipantsAndBeverage().then((response) => {
 				setBookings(response.data.bookings);

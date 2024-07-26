@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.js";
 import { Alert, Button, Form, Input } from "antd";
-import { signInCurrentUser } from "../../api/DataService.js";
 
 export default function SignIn() {
 	const [username, setUsername] = useState("");

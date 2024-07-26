@@ -1,11 +1,11 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
 	fetchGetSignedInUser,
 	fetchUserBookings,
 } from "../../api/DataService.js";
-import { Button, Descriptions, Modal, Result, Spin, Table } from "antd";
+import { Modal, Result, Spin, Table } from "antd";
 import moment from "moment";
 import EditEachBooking from "./EditEachBooking.js";
 import EachBooking from "../home/EachBooking.js";
@@ -15,12 +15,14 @@ import DeleteBooking from "./DeleteBooking.js";
 
 export default function MyBooking({ username, setUsername }) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [userBookings, setUserBookings] = useState([]);
 	// const [selectedBooking, setSelectedBooking] = useState(null);
 	const [selectedBookingIndex, setSelectedBookingIndex] = useState(null); // Track the index of the selected booking
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [viewModalVisible, setViewModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+	const [submissionSuccess, setSubmissionSuccess] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -37,12 +39,12 @@ export default function MyBooking({ username, setUsername }) {
 
 	useEffect(() => console.log(selectedBookingIndex), [selectedBookingIndex]);
 
-	useEffect(() => {
+	const fetchUserBookingData = () => {
 		const token = localStorage.getItem("accessToken");
 
 		console.log("isToken: ", token);
 
-		if (token) {
+		if (token && (!submissionSuccess || submissionSuccess)) {
 			const decoded = jwtDecode(token);
 			setUsername(decoded.username);
 			setLoading(true);
@@ -69,17 +71,21 @@ export default function MyBooking({ username, setUsername }) {
 				})
 				.finally(() => setLoading(false));
 		}
-	}, []);
+	};
 
 	useEffect(() => {
-		const params = new URLSearchParams(window.location.search);
+		fetchUserBookingData();
+	}, [submissionSuccess]);
+
+	useEffect(() => {
+		const params = new URLSearchParams(location.search);
 		const value = params.get("submit");
 
 		if (value === "success") {
-			navigate("/users/bookings");
+			navigate("/users/bookings", { replace: true });
 			setSuccessAlert(false);
 		}
-	}, [navigate]);
+	}, [location, navigate, deleteModalVisible]);
 
 	return (
 		<>
@@ -89,7 +95,7 @@ export default function MyBooking({ username, setUsername }) {
 					{/* Apply overflow-x-auto for horizontal scrolling if needed */}
 					<Spin spinning={loading}>
 						<Table
-							className="px-4 my-4 border rounded-md"
+							className="px-4 my-4 border bg-white rounded-md shadow-md"
 							dataSource={userBookings}
 							pagination={false}
 							rowKey="booking_id" // Assuming 'booking_id' is a unique key
@@ -228,6 +234,9 @@ export default function MyBooking({ username, setUsername }) {
 										setEditModalVisible={
 											setEditModalVisible
 										}
+										onSubmissionSuccess={() =>
+											setSubmissionSuccess(true)
+										}
 									/>
 								</Modal>
 							),
@@ -274,6 +283,9 @@ export default function MyBooking({ username, setUsername }) {
 								bookingId={
 									userBookings[selectedBookingIndex]
 										.booking_id
+								}
+								onSubmissionSuccess={() =>
+									setSubmissionSuccess(true)
 								}
 							/>,
 							document.getElementById("delete-modal")

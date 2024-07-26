@@ -10,10 +10,7 @@ export default function BookingForm({
 	isModalForm,
 	username,
 	setUsername,
-	loading,
-	setLoading,
-	isSubmitted,
-	setIsSubmitted,
+	onSubmissionSuccess,
 }) {
 	const navigate = useNavigate();
 
@@ -30,8 +27,9 @@ export default function BookingForm({
 	const [rooms, setRooms] = useState([]);
 	// const [username, setUsername] = useState("");
 
-	// const [isSubmitted, setIsSubmitted] = useState(false);
-	// const [loading, setLoading] = useState(false);
+	const [isSubmitted, setIsSubmitted] = useState(false);
+	const [loading, setLoading] = useState(false);
+	const [alertMessage, setAlertMessage] = useState(false);
 
 	const [form] = Form.useForm();
 
@@ -54,7 +52,7 @@ export default function BookingForm({
 		};
 
 		fetchRooms();
-		console.log("Meeting rooms: ", rooms);
+		// console.log("Meeting rooms: ", rooms);
 	}, []);
 
 	useEffect(() => {
@@ -83,15 +81,14 @@ export default function BookingForm({
 				.then((response) => {
 					console.log(response);
 					const { success } = response.data;
-					setLoading(false);
-					console.log("success value: ", success);
-
 					if (success) {
 						form.resetFields();
 						setIsSubmitted(true); // Update state for success message or redirection
-						console.log("test....");
-						navigate("/?submit=success", { replace: true });
-						setIsSubmitted(false);
+						setTimeout(() => {
+							setIsSubmitted(false); // Reset the submission state after showing the result
+							onSubmissionSuccess(); // Notify the parent component
+							navigate("/?submit=success", { replace: true });
+						}, 2000);
 					}
 				})
 				.catch((error) => {
@@ -102,11 +99,12 @@ export default function BookingForm({
 						error.response &&
 						error.response.status === 409
 					) {
-						alert(error.response.data.message);
+						setAlertMessage(error.response.data.message);
 					} else {
 						console.error("An unexpected error occurred:", error);
 					}
-				});
+				})
+				.finally(setLoading(false));
 		} catch (error) {
 			console.log(error);
 		}
@@ -116,16 +114,27 @@ export default function BookingForm({
 
 	return (
 		<>
-			<div className="pt-[136px] pb-6">
-				<div className="bg-white border rounded-md shadow-md">
-					<GenericForm
-						handleSubmit={handleSubmit}
-						username={username}
-						form={form}
-						initialFormData={initialFormData}
-						isModalForm={isModalForm}
+			<div className="pt-[136px] pb-10 pr-10">
+				{isSubmitted ? (
+					<Result
+						status="success"
+						title="You have submitted the form."
 					/>
-				</div>
+				) : (
+					<Spin spinning={loading} tip="Loading" size="large">
+						<div className="bg-white border rounded-md shadow-md">
+							<GenericForm
+								handleSubmit={handleSubmit}
+								username={username}
+								form={form}
+								initialFormData={initialFormData}
+								isModalForm={isModalForm}
+								alertMessage={alertMessage}
+								setAlertMessage={setAlertMessage}
+							/>
+						</div>
+					</Spin>
+				)}
 			</div>
 		</>
 	);

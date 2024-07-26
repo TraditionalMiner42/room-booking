@@ -1,16 +1,11 @@
-import {
-	Button,
-	Descriptions,
-	Form,
-	Input,
-	Result,
-	Spin,
-	Table,
-	message,
-} from "antd";
-import { useState } from "react";
+import { Button, Descriptions, Form, Input, Spin } from "antd";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { insertParticipantsAndBeverages } from "../../api/DataService.js";
+import {
+	getParticipantsAndBeverage,
+	insertParticipantsAndBeverages,
+} from "../../api/DataService.js";
+import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 
 export default function EditEachBooking({
 	booking,
@@ -18,16 +13,33 @@ export default function EditEachBooking({
 	successAlert,
 	setSuccessAlert,
 	setEditModalVisible,
+	onSubmissionSuccess,
 }) {
 	const navigate = useNavigate();
 	const [topicInputState, setTopicInputState] = useState(false);
 	const [editedTopic, setEditedTopic] = useState(booking.topic); // Initialize editedTopic state with booking.topic
+	const [existingMeal, setExistingMeal] = useState(null);
 	const [meal, setMeal] = useState([{ name: "", drink: "" }]);
 	const [error, setError] = useState(false);
 	const [loading, setLoading] = useState("");
 	const [form] = Form.useForm();
 
-	console.log(bookingId);
+	useEffect(() => {
+		try {
+			getParticipantsAndBeverage().then((response) =>
+				setExistingMeal(response.data.bookings)
+			);
+		} catch (error) {
+			console.log("Error fetching participants and beverages.");
+		}
+	}, []);
+
+	useEffect(
+		() => console.log("existing meal: ", existingMeal),
+		[existingMeal]
+	);
+
+	useEffect(() => console.log("filtered meal: ", filteredMeals), []);
 
 	const onRename = (e) => {
 		setTopicInputState(!topicInputState);
@@ -36,6 +48,10 @@ export default function EditEachBooking({
 	const handleInputChange = (e) => {
 		setEditedTopic(e.target.value); // Update editedTopic state based on input change
 	};
+
+	const filteredMeals = existingMeal?.filter(
+		(meal) => meal.booking_id === bookingId
+	);
 
 	const addMealChange = (index, field, value) => {
 		const updatedInputs = [...meal];
@@ -67,13 +83,16 @@ export default function EditEachBooking({
 				true
 			)
 				.then((response) => {
-					const { success, message } = response.data;
+					const { success } = response.data;
 					if (success) {
 						setSuccessAlert(!successAlert);
 						setMeal([{ name: "", drink: "" }]);
 						setEditModalVisible(false);
 						setTimeout(() => {
-							navigate("/users/bookings/?submit=success");
+							onSubmissionSuccess();
+							navigate("/users/bookings/?submit=success", {
+								replace: true,
+							});
 						}, 2000);
 					}
 				})
@@ -89,6 +108,7 @@ export default function EditEachBooking({
 	};
 
 	const onSave = (e) => {
+		setTopicInputState(!topicInputState);
 		console.log("changed topic: ", editedTopic);
 	};
 
@@ -140,9 +160,26 @@ export default function EditEachBooking({
 							Add Break
 						</div>
 
+						<div className="grid grid-cols-2 gap-4 mb-4">
+							<div className="font-bold text-left">Name</div>
+							<div className="font-bold text-left">Drink</div>
+						</div>
+						{filteredMeals?.map((mealItem, index) => (
+							<div
+								key={index}
+								className="grid grid-cols-2 gap-4 mb-4">
+								<div className="text-left">
+									{mealItem.participant_name}
+								</div>
+								<div className="text-left">
+									{mealItem.beverage}
+								</div>
+							</div>
+						))}
+
 						<div className="scrollable-container">
 							{meal.map((mealItem, index) => (
-								<div key={index} className="flex mb-4">
+								<div key={index} className="flex">
 									<div className="flex flex-col flex-1 mr-4">
 										<Form.Item
 											name={`name-${index}`}
@@ -195,7 +232,7 @@ export default function EditEachBooking({
 							))}
 						</div>
 						<div className="flex justify-center mb-8 p-4">
-							<Button
+							<PlusCircleOutlined
 								type="dashed"
 								className="mr-4"
 								onClick={addInput}
@@ -206,8 +243,8 @@ export default function EditEachBooking({
 									justifyContent: "center",
 								}}>
 								+
-							</Button>
-							<Button
+							</PlusCircleOutlined>
+							<MinusCircleOutlined
 								type="dashed"
 								className="mr-4"
 								onClick={deleteInput}
@@ -218,7 +255,7 @@ export default function EditEachBooking({
 									justifyContent: "center",
 								}}>
 								-
-							</Button>
+							</MinusCircleOutlined>
 						</div>
 						<div className="flex justify-end items-center">
 							<Button
