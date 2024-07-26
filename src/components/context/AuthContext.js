@@ -10,9 +10,9 @@ export const AuthProvider = ({ children }) => {
 	});
 
 	//
-	const login = (username, password) => {
+	const login = async (username, password) => {
 		try {
-			const response = signInCurrentUser(username, password);
+			const response = await signInCurrentUser(username, password);
 			const token = response.data.jwtAccessToken;
 			// Set token with localStorage after API request
 			localStorage.setItem("accessToken", token);

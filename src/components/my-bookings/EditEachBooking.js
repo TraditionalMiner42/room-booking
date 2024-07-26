@@ -119,7 +119,7 @@ export default function EditEachBooking({
 					<Form onFinish={onUpdateData} form={form} key={bookingId}>
 						<Descriptions>
 							<Form.Item
-								className="flex flex-row border rounded-md pt-4 mt-4 pl-2"
+								className="flex flex-row mt-4 pl-2"
 								label={<p className="pt-1">Topic</p>}
 								labelCol={{ span: 4 }}
 								wrapperCol={{ span: 20 }}>

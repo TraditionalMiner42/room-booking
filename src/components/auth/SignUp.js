@@ -15,24 +15,21 @@ export default function SignUp() {
 	const navigate = useNavigate();
 	const [form] = Form.useForm();
 
-	useEffect(() => console.log("loading: ", loading));
-
 	// Validator function to check if username exists
-	const validateUsername = (_, value) => {
+	const validateUsername = async (_, value) => {
 		if (!value) {
 			return Promise.resolve();
 		}
 		try {
 			// Check if username exists using the same signup endpoint
-			signUpUser(value, "dummyPassword", true);
+			await signUpUser(value, "dummyPassword", true);
 			// Use a dummy password
 			return Promise.resolve();
 		} catch (err) {
-			// console.log(err);
 			if (err.message === "Username already exists") {
-				return Promise.reject(Error("Username already exists"));
+				return Promise.reject("Username already exists");
 			}
-			return Promise.reject(Error("Failed to validate username"));
+			return Promise.reject("Failed to validate username");
 		}
 	};
 

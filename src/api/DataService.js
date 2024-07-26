@@ -42,7 +42,6 @@ const signUpUser = async (username, password, checkUsername = false) => {
 				"/users/signup/check_username",
 				{ username }
 			);
-			console.log("Username check response: ", response);
 			return response;
 		} else {
 			// Perform actual signup
@@ -50,7 +49,6 @@ const signUpUser = async (username, password, checkUsername = false) => {
 				username,
 				password,
 			});
-			console.log("Signed-in user: ", response);
 			return response;
 		}
 	} catch (error) {
@@ -58,7 +56,6 @@ const signUpUser = async (username, password, checkUsername = false) => {
 			// Handle 409 conflict error for existing username
 			throw new Error("Username already exists");
 		}
-		console.error("Error post sign-up: ", error);
 		throw new Error("Failed to sign up");
 	}
 };
