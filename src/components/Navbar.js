@@ -39,8 +39,10 @@ function Navbar() {
 						return (
 							<Link
 								key={index}
-								className={`nav-item ${
-									activeItem === item.path ? "active" : ""
+								className={`px-2 sm:px-5 md:px-6 lg:px-8 py-4 relative ${
+									activeItem === item.path
+										? "text-slate-800"
+										: "text-slate-500"
 								}`}
 								to={item.path}
 								onClick={() => {

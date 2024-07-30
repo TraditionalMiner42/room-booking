@@ -1,33 +1,17 @@
 import axiosInstance from "../axiosInstance.js";
 
-const signInCurrentUser = async (
-	username,
-	password,
-	checkCredential = false
-) => {
+const signInCurrentUser = async (username, password) => {
 	try {
-		if (checkCredential) {
-			const response = await axiosInstance.post(
-				"/users/signin/check_credential",
-				{
-					username,
-					password,
-				}
-			);
-			console.log("Signed-in user: ", response);
-			return response;
-		} else {
-			const response = await axiosInstance.post("/users/signin", {
-				username,
-				password,
-			});
+		const response = await axiosInstance.post("/users/signin", {
+			username,
+			password,
+		});
 
-			console.log("Signed-in user: ", response);
-			return response;
-		}
+		console.log("Signed-in user: ", response);
+		return response;
 	} catch (error) {
-		if (error.response.status === 500) {
-			throw new Error("Username or password is not matched");
+		if (error.response.status === 400) {
+			throw new Error("Invalid username or password");
 		} else {
 			throw new Error("Failed to sign in");
 		}

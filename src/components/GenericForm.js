@@ -42,47 +42,47 @@ export default function GenericForm({
 			.concat(Array.from({ length: 24 }, (v, k) => k).slice(17)); // Disable hours before 9 AM and after 4 PM
 	};
 
+	const layout = {
+		labelCol: {
+			sm: { span: 10 },
+			md: { span: 12 },
+			lg: { span: 12 },
+		},
+		wrapperCol: {
+			sm: { span: 10 },
+			md: { span: 12 },
+			lg: { span: 12 },
+		},
+	};
+
 	return (
 		<>
 			<Form
 				className={`p-6`}
 				onFinish={handleSubmit}
 				form={form}
-				initialValues={initialFormData}>
+				initialValues={initialFormData}
+				{...layout}>
 				<Form.Item
 					label={<p className="text-base">Meeting Topic</p>}
-					labelAlign="right"
 					name="meetingTopic"
 					rules={[
 						{
 							required: true,
 							message: "Please input your meeting topic!",
 						},
-					]}
-					labelCol={{
-						span: 10,
-					}}
-					wrapperCol={{
-						span: 10,
-					}}>
+					]}>
 					<Input placeholder="topic" type="text" required />
 				</Form.Item>
 				<Form.Item
 					label={<p className="text-base">Name</p>}
-					labelAlign="right"
 					name="name"
 					rules={[
 						{
 							required: true,
 							message: "Please input your name!",
 						},
-					]}
-					labelCol={{
-						span: 10,
-					}}
-					wrapperCol={{
-						span: 10,
-					}}>
+					]}>
 					<Input
 						placeholder="name"
 						defaultValue={username}
@@ -93,20 +93,13 @@ export default function GenericForm({
 				</Form.Item>
 				<Form.Item
 					label={<p className="text-base">Booking Date</p>}
-					labelAlign="right"
 					name="dateStart"
 					rules={[
 						{
 							required: true,
 							message: "Please select booking date!",
 						},
-					]}
-					labelCol={{
-						span: 10,
-					}}
-					wrapperCol={{
-						span: 10,
-					}}>
+					]}>
 					{isModalForm ? (
 						<Input value={selectedDate} disabled />
 					) : (
@@ -115,23 +108,17 @@ export default function GenericForm({
 				</Form.Item>
 				<Form.Item
 					label={<p className="text-base">Booking Time</p>}
-					labelAlign="right"
 					rules={[
 						{
 							required: true,
 							message: "Please select booking time range!",
 						},
-					]}
-					labelCol={{
-						span: 10,
-					}}
-					wrapperCol={{
-						span: 10,
-					}}>
+					]}>
 					<Input.Group compact>
-						<Form.Item name="timeStart">
+						<Form.Item
+							className="mb-0 booking-time-pb:mb-6"
+							name="timeStart">
 							<TimePicker
-								name="timeStart"
 								defaultValue={moment("08:00", "HH:mm")}
 								placeholder="Start time"
 								disabledHours={disabledHours}
@@ -140,9 +127,8 @@ export default function GenericForm({
 								required
 							/>
 						</Form.Item>
-						<Form.Item name="timeEnd">
+						<Form.Item className="mb-0" name="timeEnd">
 							<TimePicker
-								name="timeEnd"
 								defaultValue={moment("08:00", "HH:mm")}
 								placeholder="End time"
 								disabledHours={disabledHours}
@@ -160,13 +146,7 @@ export default function GenericForm({
 						{
 							message: "Please select a room!",
 						},
-					]}
-					labelCol={{
-						span: 10,
-					}}
-					wrapperCol={{
-						span: 10,
-					}}>
+					]}>
 					{isModalForm ? (
 						<>
 							<Input

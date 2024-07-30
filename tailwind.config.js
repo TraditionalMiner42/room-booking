@@ -6,6 +6,9 @@ module.exports = {
 			fontFamily: {
 				NotoSansThai: ['"Noto Sans Thai"', "sans-serif"],
 			},
+			screens: {
+				"booking-time-pb": "575px",
+			},
 		},
 	},
 	plugins: [],

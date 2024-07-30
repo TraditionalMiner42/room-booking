@@ -57,7 +57,7 @@ export default function UpcomingBooking({ selectedDate, bookings }) {
 	const displayedRoomsByDate = {};
 
 	return (
-		<div className="p-10 pt-14 w-2/3">
+		<div className="p-10 pt-14 w-full md:w-2/3">
 			<div className="font-semibold text-2xl my-6">Upcoming Bookings</div>
 			<Spin spinning={loading} tip="loading" size="large">
 				<Collapse
@@ -99,7 +99,7 @@ export default function UpcomingBooking({ selectedDate, bookings }) {
 													</div>
 												)}
 												<div className="flex flex-row text-base">
-													<span className="w-1/5">
+													<span className="w-2/5 xl:w-1/5">
 														{booking.topic}
 													</span>
 													<span className="ml-2">

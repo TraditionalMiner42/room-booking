@@ -1,4 +1,4 @@
-import { Button, Descriptions } from "antd";
+import { Button, Col, Descriptions, Row } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -99,7 +99,7 @@ export default function EachBooking({
 			<div className="font-semibold text-xl pb-5">
 				{selectedBooking.topic}
 			</div>
-			<Descriptions key={key} column={2}>
+			<Descriptions key={key} column={2} className="w-full">
 				<Descriptions.Item label="Booking Date">
 					{bookingDate}
 				</Descriptions.Item>
@@ -124,6 +124,7 @@ export default function EachBooking({
 					</React.Fragment>
 				))}
 			</Descriptions>
+
 			<div className="ant-btn mt-2 flex flex-row justify-between">
 				<DownloadOutlined
 					className="antd-icon cursor-pointer"

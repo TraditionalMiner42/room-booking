@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* For customizing responsive font size */
+/* html {
+    .header-size {
+        font-size: 16px;
+
+        @screen sm {
+            font-size: 20px;
+        }
+
+        @screen md {
+            font-size: 24px;
+        }
+    }
+
+    .sub-header-size {
+        font-size: 14px;
+
+        @screen sm {
+            font-size: 18px;
+        }
+
+        @screen md {
+            font-size: 20px;
+        }
+    }
+
+    .content-size {
+        font-size: 12px;
+
+        @screen sm {
+            font-size: 14px;
+        }
+
+        @screen md {
+            font-size: 16px;
+        }
+    }
+} */
+
 * {
     @apply tracking-wider
 }
@@ -21,6 +60,7 @@
 }
 
 @layer base {
+
     body {
         @apply bg-gray-100
     }
@@ -30,49 +70,9 @@
 
 }
 
-@layer components {
-  .login-label {
-      @apply p-2
-  }
+/* .ant-picker-ok {
+    display: none !important;
+} */
 
-  .login-input {
-      @apply p-2 border rounded-md w-80
-  }
 
-  .login-btn-container {
-      @apply p-4 mx-2 my-2
-  }
-/*   
-  ul.navbar {
-      @apply flex flex-row justify-end border-b-2 border-b-slate-200
-  } */
-  
-  .nav-item {
-      @apply px-8 py-4 relative text-slate-500 
-  }
 
-  .nav-item:hover,
-  .nav-item.active {
-    @apply text-slate-800
-  }
-
-  .form-item {
-      @apply flex flex-col p-2 m-1 
-  }
-  .input-item {
-      @apply rounded-md p-1 my-1
-  }
-  .antd-icon {
-    font-size: 20px !important;
-  }
-}
-
-.App {
-  text-align: center;
-}
-
-.scrollable-container {
-    height: 400px; /* Adjust height as needed */
-    overflow-y: auto;
-    padding-right: 16px; /* To avoid scrollbar overlap */
-}

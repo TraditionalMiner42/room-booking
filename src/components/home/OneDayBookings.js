@@ -151,7 +151,7 @@ export default function OneDayBooking({
 																	cursor: "default",
 																}}>
 																<div className="flex justify-between items-center">
-																	<div className="py-2 font-bold">
+																	<div className="font-bold">
 																		{
 																			room.room_name
 																		}
@@ -190,7 +190,7 @@ export default function OneDayBooking({
 																cursor: "default",
 															}}>
 															<div className="flex justify-between items-center">
-																<div className="py-2 font-bold">
+																<div className="font-bold">
 																	{
 																		room.room_name
 																	}

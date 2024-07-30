@@ -225,7 +225,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 
 	return (
 		<>
-			<div className="flex flex-row">
+			<div className="grid md:flex">
 				<UpcomingBooking
 					selectedDate={selectedDate}
 					bookings={bookings}

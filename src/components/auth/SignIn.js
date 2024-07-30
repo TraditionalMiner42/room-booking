@@ -34,7 +34,7 @@ export default function SignIn() {
 			await login(username, password);
 			navigate("/");
 		} catch (error) {
-			if (error.message === "Username or password is not matched") {
+			if (error.message === "Invalid username or password") {
 				setError(error.message);
 			} else {
 				setError("An error occurred during sign-in");

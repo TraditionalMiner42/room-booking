@@ -89,13 +89,12 @@ export default function MyBooking({ username, setUsername }) {
 
 	return (
 		<>
-			<div className="flex flex-col items-center p-10 pt-20">
-				<div className="overflow-x-auto">
+			<div className="min-w-full container p-8 pt-20">
+				<div className="overflow-x-auto border rounded-md  bg-white shadow-md">
 					{" "}
 					{/* Apply overflow-x-auto for horizontal scrolling if needed */}
 					<Spin spinning={loading}>
 						<Table
-							className="px-4 my-4 border bg-white rounded-md shadow-md"
 							dataSource={userBookings}
 							pagination={false}
 							rowKey="booking_id" // Assuming 'booking_id' is a unique key

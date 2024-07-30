@@ -13,7 +13,7 @@ root.render(
 			theme={{
 				token: {
 					fontFamily: "Noto Sans Thai",
-					motion: false,
+					motion: true,
 				},
 			}}>
 			<HashRouter>
