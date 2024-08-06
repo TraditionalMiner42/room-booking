@@ -74,7 +74,7 @@ export default function SignIn() {
 						/>
 					</Form.Item>
 					<Form.Item
-						className="py-2"
+						className="pb-2"
 						label={<p className="text-base">Password</p>}
 						name="password"
 						rules={[
@@ -115,10 +115,12 @@ export default function SignIn() {
 					</Form.Item>
 
 					<div className="flex justify-between pb-4">
-						<p>Forgot password?</p>
-						<p>
+						<Button type="default" className="border-none">
+							Forgot password?
+						</Button>
+						<Button type="default" className="border-none">
 							<Link to="/users/signup">Sign Up</Link>
-						</p>
+						</Button>
 					</div>
 				</Form>
 			</div>

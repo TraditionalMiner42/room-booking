@@ -114,7 +114,7 @@ export default function BookingForm({
 
 	return (
 		<>
-			<div className="px-10 md:pt-[136px] md:pl-0 md:pr-10 pb-10">
+			<div className="px-10 lg:pt-[136px] lg:pl-10 md:pr-10 pb-10">
 				{isSubmitted ? (
 					<Result
 						status="success"

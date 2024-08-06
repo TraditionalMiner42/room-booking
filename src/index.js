@@ -14,6 +14,7 @@ root.render(
 				token: {
 					fontFamily: "Noto Sans Thai",
 					motion: true,
+					colorPrimary: "#BF40BF",
 				},
 			}}>
 			<HashRouter>

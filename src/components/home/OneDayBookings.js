@@ -89,47 +89,58 @@ export default function OneDayBooking({
 																	className="flex justify-between items-center py-2"
 																	key={index}>
 																	<div className="align-middle font-light flex-grow">
-																		{moment(
-																			booking.booking_start_time,
-																			"HH:mm"
-																		).format(
-																			"HH:mm"
-																		)}{" "}
-																		-{" "}
-																		{moment(
-																			booking.booking_end_time,
-																			"HH:mm"
-																		).format(
-																			"HH:mm"
-																		)}
+																		<div className="py-2">
+																			{
+																				booking.name
+																			}
+																		</div>
+																		<div className="flex justify-between items-center">
+																			<div className="align-middle">
+																				{moment(
+																					booking.booking_start_time,
+																					"HH:mm"
+																				).format(
+																					"HH:mm"
+																				)}{" "}
+																				-{" "}
+																				{moment(
+																					booking.booking_end_time,
+																					"HH:mm"
+																				).format(
+																					"HH:mm"
+																				)}
+																			</div>
+
+																			<Button
+																				type="default"
+																				className="border-none"
+																				onClick={(
+																					e
+																				) => {
+																					console.log(
+																						booking
+																					);
+																					console.log(
+																						index
+																					);
+																					onDetailModal(
+																						e,
+																						room.room_id,
+																						room.room_name,
+																						selectedDate
+																					);
+																					setSelectedBooking(
+																						booking
+																					);
+																					setCurrentBookingIndex(
+																						index
+																					);
+																					// index += 1;
+																				}}>
+																				View
+																			</Button>
+																		</div>
 																	</div>
-																	<Button
-																		type="link"
-																		onClick={(
-																			e
-																		) => {
-																			console.log(
-																				booking
-																			);
-																			console.log(
-																				index
-																			);
-																			onDetailModal(
-																				e,
-																				room.room_id,
-																				room.room_name,
-																				selectedDate
-																			);
-																			setSelectedBooking(
-																				booking
-																			);
-																			setCurrentBookingIndex(
-																				index
-																			);
-																			// index += 1;
-																		}}>
-																		View
-																	</Button>
 																</div>
 															)
 														)}

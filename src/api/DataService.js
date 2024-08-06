@@ -1,5 +1,38 @@
 import axiosInstance from "../axiosInstance.js";
 
+const getSection = async () => {
+	try {
+		const response = await axiosInstance.get("/users/get_sections");
+		return response;
+	} catch (error) {
+		if (error.response.status === 400) {
+			throw new Error("Failed to get section data");
+		}
+	}
+};
+
+const getDivision = async () => {
+	try {
+		const response = await axiosInstance.get("/users/get_divisions");
+		return response;
+	} catch (error) {
+		if (error.response.status === 400) {
+			throw new Error("Failed to get division data");
+		}
+	}
+};
+
+const getCurrentSignInUser = async (username) => {
+	try {
+		const response = await axiosInstance.get("/users/get_user_name", {
+			params: { username },
+		});
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
+
 const signInCurrentUser = async (username, password) => {
 	try {
 		const response = await axiosInstance.post("/users/signin", {
@@ -18,7 +51,15 @@ const signInCurrentUser = async (username, password) => {
 	}
 };
 
-const signUpUser = async (username, password, checkUsername = false) => {
+const signUpUser = async (
+	empId = null,
+	fullname = null,
+	division = null,
+	section = null,
+	username,
+	password,
+	checkUsername = false
+) => {
 	try {
 		if (checkUsername) {
 			// Check if username exists
@@ -30,6 +71,10 @@ const signUpUser = async (username, password, checkUsername = false) => {
 		} else {
 			// Perform actual signup
 			const response = await axiosInstance.post("/users/signup", {
+				empId,
+				fullname,
+				division,
+				section,
 				username,
 				password,
 			});
@@ -69,8 +114,8 @@ const fetchGetBookings = async () => {
 const fetchGetSignedInUser = async () => {
 	try {
 		const response = await axiosInstance.get("/users/get_user");
-		console.log(response.data.user);
-		return response;
+		console.log(response.data);
+		return response.data;
 	} catch (error) {
 		console.error("Error fetching signed-in user: ", error);
 		throw error;
@@ -148,6 +193,9 @@ const deleteBookingFromTable = async (bookingId) => {
 };
 
 export {
+	getSection,
+	getDivision,
+	getCurrentSignInUser,
 	signInCurrentUser,
 	signUpUser,
 	fetchGetRooms,

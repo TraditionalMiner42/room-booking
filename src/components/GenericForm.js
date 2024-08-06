@@ -45,13 +45,13 @@ export default function GenericForm({
 	const layout = {
 		labelCol: {
 			sm: { span: 10 },
-			md: { span: 12 },
-			lg: { span: 12 },
+			md: { span: 10 },
+			lg: { span: 10 },
 		},
 		wrapperCol: {
 			sm: { span: 10 },
-			md: { span: 12 },
-			lg: { span: 12 },
+			md: { span: 10 },
+			lg: { span: 10 },
 		},
 	};
 

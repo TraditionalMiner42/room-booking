@@ -38,38 +38,32 @@ export default function MyBooking({ username, setUsername }) {
 	};
 
 	useEffect(() => console.log(selectedBookingIndex), [selectedBookingIndex]);
+	useEffect(() => console.log(userBookings), [userBookings]);
 
-	const fetchUserBookingData = () => {
+	const fetchUserBookingData = async () => {
 		const token = localStorage.getItem("accessToken");
 
 		console.log("isToken: ", token);
 
 		if (token && (!submissionSuccess || submissionSuccess)) {
-			const decoded = jwtDecode(token);
-			setUsername(decoded.username);
-			setLoading(true);
-			fetchGetSignedInUser()
-				.then((response) => {
-					const user = response.data.user;
-					setUsername(user);
-					console.log("response user: ", user);
-					fetchUserBookings(user)
-						.then((bookingResponse) => {
-							const bookings = bookingResponse;
-							setUserBookings(bookings);
-							console.log("Booking response: ", bookings);
-						})
-						.catch((bookingError) => {
-							console.log(
-								"Error fetching user bookings: ",
-								bookingError
-							);
-						});
-				})
-				.catch((error) => {
-					console.log("Error fetching signed-in user: ", error);
-				})
-				.finally(() => setLoading(false));
+			try {
+				const decoded = jwtDecode(token);
+				setUsername(decoded.username);
+				setLoading(true);
+
+				const userResponse = await fetchGetSignedInUser();
+				const user = userResponse.user;
+				setUsername(user);
+				// console.log("response user: ", user);
+
+				const bookings = await fetchUserBookings(user);
+				setUserBookings(bookings);
+				// console.log("Booking response: ", bookings);
+			} catch (error) {
+				console.log("Error fetching data:", error);
+			} finally {
+				setLoading(false);
+			}
 		}
 	};
 
@@ -118,6 +112,7 @@ export default function MyBooking({ username, setUsername }) {
 								dataIndex="booking_date"
 								key="booking_date"
 								width="20%"
+								align="center"
 								render={(text, record) =>
 									moment(text).format("DD-MM-YYYY")
 								}
@@ -131,6 +126,7 @@ export default function MyBooking({ username, setUsername }) {
 								dataIndex="booking_start_time"
 								key="booking_start_time"
 								width="15%"
+								align="center"
 								render={(time, record) => {
 									const startTime = new Date(time); // Convert the time to a Date object
 									if (isNaN(startTime.getTime())) {
@@ -149,6 +145,7 @@ export default function MyBooking({ username, setUsername }) {
 								dataIndex="booking_end_time"
 								key="booking_end_time"
 								width="15%"
+								align="center"
 								render={(time, record) => {
 									const endTime = new Date(time); // Convert the time to a Date object
 									if (isNaN(endTime.getTime())) {
@@ -167,6 +164,7 @@ export default function MyBooking({ username, setUsername }) {
 								dataIndex="room_name"
 								key="room_name"
 								width="20%"
+								align="center"
 							/>
 							<Table.Column
 								title={
@@ -177,7 +175,7 @@ export default function MyBooking({ username, setUsername }) {
 								key="action"
 								align="right"
 								render={(text, record, index) => (
-									<div className="flex flex-row">
+									<div className="flex flex-row justify-center">
 										<EditOutlined
 											className="antd-icon mr-4"
 											onClick={() =>

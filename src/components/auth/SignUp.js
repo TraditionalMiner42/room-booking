@@ -1,11 +1,17 @@
-import { Button, Form, Input, Result } from "antd";
+import { Button, Form, Input, Result, Select } from "antd";
 import Spin from "antd/es/spin/index.js";
 import "antd/es/spin/style/index.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signUpUser } from "../../api/DataService.js";
+import { getDivision, getSection, signUpUser } from "../../api/DataService.js";
 
 export default function SignUp() {
+	const [employeeId, setEmployeeId] = useState("");
+	const [fullname, setFullName] = useState("");
+	const [divisions, setDivisions] = useState([]);
+	const [selectedDivision, setSelectedDivision] = useState(0);
+	const [sections, setSections] = useState([]);
+	const [selectedSection, setSelectedSection] = useState(0);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,6 +21,29 @@ export default function SignUp() {
 	const navigate = useNavigate();
 	const [form] = Form.useForm();
 
+	const fetchSectionDivision = async () => {
+		try {
+			const [sectionData, divisionData] = await Promise.all([
+				getSection(),
+				getDivision(),
+			]);
+			setSections(sectionData.data.sections);
+			setDivisions(divisionData.data.divisions);
+		} catch (error) {
+			if (error.message) {
+				setError(error.message);
+			}
+		}
+	};
+
+	useEffect(() => {
+		fetchSectionDivision();
+	}, []);
+
+	useEffect(() => {
+		console.log("divisions: ", divisions);
+	});
+
 	// Validator function to check if username exists
 	const validateUsername = async (_, value) => {
 		if (!value) {
@@ -22,7 +51,15 @@ export default function SignUp() {
 		}
 		try {
 			// Check if username exists using the same signup endpoint
-			await signUpUser(value, "dummyPassword", true);
+			await signUpUser(
+				null,
+				null,
+				null,
+				null,
+				value,
+				"dummyPassword",
+				true
+			);
 			// Use a dummy password
 			return Promise.resolve();
 		} catch (err) {
@@ -37,13 +74,24 @@ export default function SignUp() {
 		console.log("Submitting form...");
 		setLoading(true);
 		try {
-			signUpUser(username, password)
+			signUpUser(
+				employeeId,
+				fullname,
+				selectedDivision,
+				selectedSection,
+				username,
+				password
+			)
 				.then((response) => {
 					const { success } = response.data;
 					console.log(response);
 					if (success) {
 						// Reset form data (optional)
 						setSuccessAlert(true);
+						setEmployeeId("");
+						setFullName("");
+						setDivisions("");
+						setSections("");
 						setUsername("");
 						setPassword("");
 						setConfirmPassword("");
@@ -67,6 +115,15 @@ export default function SignUp() {
 			console.log("Error signing up: ", error);
 		}
 	};
+
+	// console.log(typeof selectedDivision); // Check the type of selectedDivision
+	// console.log("obj: ", sections[0]); // Check the type of division_id
+
+	// const filteredSections = sections.filter((section) => {
+	// 	console.log("Section:", section);
+	// 	return selectedDivision === section.division_id;
+	// });
+	// console.log("Filtered Sections:", filteredSections);
 
 	return (
 		<>
@@ -92,7 +149,132 @@ export default function SignUp() {
 									onFinish={handleSubmit}
 									layout="vertical">
 									<Form.Item
-										className="pb-2 pt-4"
+										className="pt-4 pb-2"
+										label={
+											<p className="text-base">
+												Employee ID
+											</p>
+										}
+										name="empId"
+										rules={[
+											{
+												required: true,
+												message:
+													"Please enter your employee id",
+											},
+											// {
+											// 	validator: ,
+											// },
+										]}>
+										<Input
+											placeholder="Enter your employee id"
+											value={employeeId}
+											onChange={(e) =>
+												setEmployeeId(e.target.value)
+											}
+										/>
+									</Form.Item>
+									<Form.Item
+										className="pb-2"
+										label={
+											<p className="text-base">
+												Full Name
+											</p>
+										}
+										name="fullName"
+										rules={[
+											{
+												required: true,
+												message:
+													"Please enter your full name",
+											},
+										]}>
+										<Input
+											placeholder="Enter your full name"
+											value={fullname}
+											onChange={(e) =>
+												setFullName(e.target.value)
+											}
+										/>
+									</Form.Item>
+									<Form.Item
+										label={
+											<p className="text-base">
+												Select Division
+											</p>
+										}
+										name="division"
+										rules={[
+											{
+												required: true,
+												message:
+													"Please select a division!",
+											},
+										]}>
+										<Select
+											required
+											placeholder="Select division"
+											value={selectedDivision}
+											onChange={(value) => {
+												setSelectedDivision(value);
+											}}>
+											{divisions.map((division) => (
+												<Select.Option
+													key={division.division_id}
+													children={
+														division.division_name
+													}></Select.Option>
+											))}
+										</Select>
+									</Form.Item>
+									<Form.Item
+										label={
+											<p className="text-base">
+												Select Section
+											</p>
+										}
+										name="section"
+										rules={[
+											{
+												required: true,
+												message:
+													"Please select a section!",
+											},
+										]}>
+										<Select
+											required
+											placeholder="Select section"
+											value={selectedSection}
+											onChange={(value) =>
+												setSelectedSection(value)
+											}>
+											{sections
+												.filter((section) => {
+													return (
+														Number(
+															selectedDivision
+														) ===
+														section.division_id
+													);
+												})
+												.map((section) => (
+													<Select.Option
+														key={section.section_id}
+														children={
+															section.section_name
+														}></Select.Option>
+												))}
+											{/* {sections.map((section) => (
+												<Select.Option
+													key={section.section_id}
+													children={
+														section.section_name
+													}></Select.Option>
+											))} */}
+										</Select>
+									</Form.Item>
+									<Form.Item
+										className="pb-2"
 										label={
 											<p className="text-base">
 												Username
@@ -118,7 +300,7 @@ export default function SignUp() {
 										/>
 									</Form.Item>
 									<Form.Item
-										className="py-2"
+										className="pb-2"
 										label={
 											<p className="text-base">
 												Password
@@ -146,10 +328,10 @@ export default function SignUp() {
 										/>
 									</Form.Item>
 									<Form.Item
-										className="py-2"
+										className="pb-2"
 										label={
 											<p className="text-base">
-												Password
+												Confirm Password
 											</p>
 										}
 										name="Confirmed Password"
@@ -186,8 +368,7 @@ export default function SignUp() {
 											}
 										/>
 									</Form.Item>
-
-									<Form.Item className="flex justify-center py-2">
+									<Form.Item className="flex justify-center mb-0 py-2">
 										<Button
 											type="primary"
 											htmlType="submit">

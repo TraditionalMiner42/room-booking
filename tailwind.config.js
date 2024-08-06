@@ -8,6 +8,7 @@ module.exports = {
 			},
 			screens: {
 				"booking-time-pb": "575px",
+				"sm-mobile-size": "450px",
 			},
 		},
 	},

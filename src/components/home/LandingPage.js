@@ -5,7 +5,11 @@ import { Badge, Calendar, Modal, Spin } from "antd";
 import HomeForm from "./HomeForm.js";
 import UpcomingBooking from "./UpcomingBooking.js";
 import { jwtDecode } from "jwt-decode";
-import { fetchGetBookings, fetchGetRooms } from "../../api/DataService.js";
+import {
+	fetchGetBookings,
+	fetchGetRooms,
+	getCurrentSignInUser,
+} from "../../api/DataService.js";
 import EachBooking from "./EachBooking.js";
 import OneDayBooking from "./OneDayBookings.js";
 import BookingForm from "./BookingForm.js";
@@ -52,11 +56,26 @@ function LandingPage({ isModalForm, username, setUsername }) {
 			setUsername(decoded.username);
 
 			fetchGetRooms().then((data) => setRooms(data));
-			fetchGetBookings().then((data) => setBookings(data));
+			fetchGetBookings().then((data) => {
+				setBookings(data);
+			});
 		} else {
 			console.log("No token found.");
 		}
 	}, []);
+
+	// useEffect(() => {
+	// 	const fetchUser = async () => {
+	// 		try {
+	// 			const response = await getCurrentSignInUser(username);
+	// 			setFullName(response.data.users);
+	// 		} catch (error) {
+	// 			console.error("Error fetching user: ", error);
+	// 		}
+	// 	};
+
+	// 	fetchUser();
+	// }, [username]);
 
 	useEffect(() => {
 		if (submissionSuccess) {
@@ -225,7 +244,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 
 	return (
 		<>
-			<div className="grid md:flex">
+			<div className="grid lg:flex lg:justify-between">
 				<UpcomingBooking
 					selectedDate={selectedDate}
 					bookings={bookings}
