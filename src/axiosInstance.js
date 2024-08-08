@@ -23,7 +23,11 @@ axiosInstance.interceptors.request.use(
 		return config;
 	},
 	(error) => {
-		return Promise.reject(error);
+		if (typeof error.response === "undefined") {
+			console.log("network error");
+		} else {
+			return Promise.reject(error);
+		}
 	}
 );
 

@@ -43,10 +43,22 @@ const signInCurrentUser = async (username, password) => {
 		console.log("Signed-in user: ", response);
 		return response;
 	} catch (error) {
-		if (error.response.status === 400) {
-			throw new Error("Invalid username or password");
+		console.log("error: ", error);
+		// Check if the error has a response object
+		if (error.response) {
+			if (error.response.status === 400) {
+				throw new Error("Invalid username or password");
+			} else {
+				throw new Error(
+					`Sign-in failed with status code ${error.response.status}`
+				);
+			}
+		} else if (error.request) {
+			// The request was made but no response was received
+			throw new Error("No response received from the server");
 		} else {
-			throw new Error("Failed to sign in");
+			// Something happened in setting up the request
+			throw new Error(`Error in request setup: ${error.message}`);
 		}
 	}
 };

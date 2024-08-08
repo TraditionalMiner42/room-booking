@@ -48,10 +48,26 @@ function LandingPage({ isModalForm, username, setUsername }) {
 		}
 	}, [location, navigate, subModalVisible]);
 
+	const isTokenExpired = (token) => {
+		try {
+			const decoded = jwtDecode(token);
+			const currentTime = Date.now() / 1000; // Current time in seconds
+			return decoded.exp < currentTime;
+		} catch (error) {
+			console.error("Failed to decode token", error);
+			return true; // Assume expired if decoding fails
+		}
+	};
+
 	useEffect(() => {
 		const token = localStorage.getItem("accessToken");
-		console.log(token);
+		console.log("token: ", token);
 		if (token) {
+			if (isTokenExpired(token)) {
+				console.log("Token expired.");
+				navigate("/users/signin", { replace: true });
+				return;
+			}
 			const decoded = jwtDecode(token);
 			setUsername(decoded.username);
 
