@@ -44,6 +44,10 @@ export const AuthProvider = ({ children }) => {
 	};
 
 	useEffect(() => {
+		console.log("Auth state on mount:", {
+			isAuthenticated: checkAuth(),
+			token: localStorage.getItem("accessToken"),
+		});
 		// Initialize authentication state
 		setAuthState({
 			isAuthenticated: checkAuth(),

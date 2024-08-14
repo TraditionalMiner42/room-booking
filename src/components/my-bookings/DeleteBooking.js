@@ -1,6 +1,6 @@
 import { Modal } from "antd";
 import { deleteBookingFromTable } from "../../api/DataService.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function DeleteBooking({

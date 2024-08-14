@@ -125,16 +125,19 @@ export default function EachBooking({
 				))}
 			</Descriptions>
 
-			<div className="ant-btn mt-2 flex flex-row justify-between">
-				<DownloadOutlined
-					className="antd-icon cursor-pointer"
-					onClick={generatePDF}></DownloadOutlined>
+			<div className="ant-btn mt-8 flex flex-row justify-between">
+				<Button className="flex" type="primary">
+					<div className="mr-1">Download</div>
+					<DownloadOutlined
+						className="antd-icon"
+						onClick={generatePDF}></DownloadOutlined>
+				</Button>
 
 				{showBackButton && (
 					<>
 						<Button
 							className="mx-4"
-							type="primary"
+							type="default"
 							onClick={toPreviousMainModal}>
 							Back
 						</Button>

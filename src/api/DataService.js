@@ -162,12 +162,24 @@ const fetchPostForm = async (formData) => {
 	}
 };
 
-const insertParticipantsAndBeverages = async (meal, bookingId, editedTopic) => {
+const updateBookingTopic = async (editedTopic, bookingId) => {
 	try {
-		const response = await axiosInstance.post("/users/add_more", {
+		const response = await axiosInstance.post("/users/rename_topic", {
+			editedTopic,
+			bookingId,
+		});
+		return response;
+	} catch (error) {
+		console.log("Error updating the renamed topic: ", error);
+		throw error;
+	}
+};
+
+const insertParticipantsAndBeverages = async (meal, bookingId) => {
+	try {
+		const response = await axiosInstance.post("/users/add_break_meals", {
 			meal,
 			bookingId,
-			editedTopic,
 		});
 		return response;
 	} catch (error) {
@@ -215,6 +227,7 @@ export {
 	fetchPostForm,
 	fetchGetSignedInUser,
 	fetchUserBookings,
+	updateBookingTopic,
 	insertParticipantsAndBeverages,
 	getParticipantsAndBeverage,
 	deleteBookingFromTable,

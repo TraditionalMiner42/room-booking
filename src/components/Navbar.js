@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.js";
 import { Menu } from "antd";
 
 function Navbar() {
-	const [activeItem, setActiveItem] = useState("/");
+	const location = useLocation();
+	const [activeItem, setActiveItem] = useState(location.pathname);
 	const { isAuthenticated, logout } = useAuth();
 
 	const navItems = [

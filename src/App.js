@@ -9,6 +9,7 @@ import { AuthProvider } from "./components/context/AuthContext.js";
 import PrivateRoute from "./components/PrivateRoute.js";
 import PageException from "./components/PageException.js";
 import MyBooking from "./components/my-bookings/MyBookings.js";
+import { MealMenu } from "./components/my-bookings/MealMenu.js";
 
 function App() {
 	const [isModalForm, setIsModalForm] = useState(false);
@@ -19,6 +20,7 @@ function App() {
 			<AuthProvider>
 				<Routes>
 					{/* Private Routes */}
+					{/* Routes that include Navbar */}
 					<Route
 						element={
 							<>
@@ -50,6 +52,11 @@ function App() {
 							}
 						/>
 					</Route>
+					{/* Routes without Navbar */}
+					<Route
+						path="/users/bookings/:value/meal-menu"
+						element={<MealMenu />}
+					/>
 
 					{/* Public routes */}
 					<Route path="/users/signin" element={<SignIn />} />

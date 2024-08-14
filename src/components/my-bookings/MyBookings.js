@@ -1,17 +1,24 @@
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
 	fetchGetSignedInUser,
 	fetchUserBookings,
 } from "../../api/DataService.js";
-import { Modal, Result, Spin, Table } from "antd";
+import { Modal, Result, Spin, Table, message } from "antd";
 import moment from "moment";
-import EditEachBooking from "./EditEachBooking.js";
+import EditEachBooking from "./EditEachBookingName.js";
 import EachBooking from "../home/EachBooking.js";
 import { createPortal } from "react-dom";
-import { EditOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+	EditOutlined,
+	EyeOutlined,
+	DeleteOutlined,
+	CopyOutlined,
+	ExportOutlined,
+} from "@ant-design/icons";
 import DeleteBooking from "./DeleteBooking.js";
+import EditEachBookingName from "./EditEachBookingName.js";
 
 export default function MyBooking({ username, setUsername }) {
 	const navigate = useNavigate();
@@ -36,9 +43,6 @@ export default function MyBooking({ username, setUsername }) {
 		}
 		setSelectedBookingIndex(index);
 	};
-
-	useEffect(() => console.log(selectedBookingIndex), [selectedBookingIndex]);
-	useEffect(() => console.log(userBookings), [userBookings]);
 
 	const fetchUserBookingData = async () => {
 		const token = localStorage.getItem("accessToken");
@@ -67,9 +71,29 @@ export default function MyBooking({ username, setUsername }) {
 		}
 	};
 
+	const copyUrlToClipboard = (value) => {
+		const currentUrl = window.location.href; // Get the current URL
+		const bookingUrl = `${currentUrl}/${value}/meal-menu`; // Append booking path
+
+		navigator.clipboard
+			.writeText(bookingUrl)
+			.then(() => {
+				message.success("URL copied to clipboard!");
+			})
+			.catch((err) => {
+				message.error("Failed to copy URL!");
+				console.error("Error copying URL:", err);
+			});
+	};
+
 	useEffect(() => {
 		fetchUserBookingData();
 	}, [submissionSuccess]);
+
+	// useEffect(
+	// 	() => console.log("submission success?: ", submissionSuccess),
+	// 	[submissionSuccess]
+	// );
 
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
@@ -111,7 +135,7 @@ export default function MyBooking({ username, setUsername }) {
 								}
 								dataIndex="booking_date"
 								key="booking_date"
-								width="20%"
+								width="15%"
 								align="center"
 								render={(text, record) =>
 									moment(text).format("DD-MM-YYYY")
@@ -120,12 +144,12 @@ export default function MyBooking({ username, setUsername }) {
 							<Table.Column
 								title={
 									<p className="text-base text-center">
-										Booking Start Time
+										Start Time
 									</p>
 								}
 								dataIndex="booking_start_time"
 								key="booking_start_time"
-								width="15%"
+								width="12%"
 								align="center"
 								render={(time, record) => {
 									const startTime = new Date(time); // Convert the time to a Date object
@@ -139,12 +163,12 @@ export default function MyBooking({ username, setUsername }) {
 							<Table.Column
 								title={
 									<p className="text-base text-center">
-										Booking End Time
+										End Time
 									</p>
 								}
 								dataIndex="booking_end_time"
 								key="booking_end_time"
-								width="15%"
+								width="12%"
 								align="center"
 								render={(time, record) => {
 									const endTime = new Date(time); // Convert the time to a Date object
@@ -194,49 +218,60 @@ export default function MyBooking({ username, setUsername }) {
 									</div>
 								)}
 							/>
+							<Table.Column
+								title={
+									<p className="text-base text-center">
+										Add Break-meal
+									</p>
+								}
+								key="booking_id"
+								dataIndex="booking_id"
+								render={(value, record, index) => (
+									<div className="flex flex-row justify-center">
+										<div className="mr-2">Copy</div>
+										<CopyOutlined
+											className="mr-4"
+											onClick={() =>
+												copyUrlToClipboard(value)
+											}></CopyOutlined>
+										<Link
+											to={`/users/bookings/${value}/meal-menu`}
+											target="_blank"
+											rel="noreferrer">
+											<ExportOutlined></ExportOutlined>
+										</Link>
+									</div>
+								)}
+							/>
 						</Table>
 					</Spin>
 					<div id="edit-detail-modal"></div>
 					{selectedBookingIndex !== null &&
 						editModalVisible &&
 						createPortal(
-							successAlert ? (
-								<Result
-									title="Successfully inserted"
-									status="success"
-									closable
-								/>
-							) : (
-								<Modal
-									open={editModalVisible}
-									onCancel={() => {
-										setEditModalVisible(false);
-										setSelectedBookingIndex(null);
-									}}
-									footer={null}
-									key={
+							<Modal
+								open={editModalVisible}
+								onCancel={() => {
+									setEditModalVisible(false);
+									setSelectedBookingIndex(null);
+								}}
+								footer={null}
+								key={
+									userBookings[selectedBookingIndex]
+										.booking_id
+								}>
+								<EditEachBookingName
+									booking={userBookings[selectedBookingIndex]}
+									bookingId={
 										userBookings[selectedBookingIndex]
 											.booking_id
-									}>
-									<EditEachBooking
-										booking={
-											userBookings[selectedBookingIndex]
-										}
-										bookingId={
-											userBookings[selectedBookingIndex]
-												.booking_id
-										}
-										successAlert={successAlert}
-										setSuccessAlert={setSuccessAlert}
-										setEditModalVisible={
-											setEditModalVisible
-										}
-										onSubmissionSuccess={() =>
-											setSubmissionSuccess(true)
-										}
-									/>
-								</Modal>
-							),
+									}
+									setEditModalVisible={setEditModalVisible}
+									onSubmissionSuccess={() =>
+										setSubmissionSuccess(true)
+									}
+								/>
+							</Modal>,
 							document.getElementById("edit-detail-modal")
 						)}
 					<div id="view-detail-modal"></div>

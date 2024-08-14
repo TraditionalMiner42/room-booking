@@ -4,14 +4,13 @@ import { useNavigate } from "react-router-dom";
 import {
 	getParticipantsAndBeverage,
 	insertParticipantsAndBeverages,
+	updateBookingTopic,
 } from "../../api/DataService.js";
 import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 
-export default function EditEachBooking({
+export default function EditEachBookingName({
 	booking,
 	bookingId,
-	successAlert,
-	setSuccessAlert,
 	setEditModalVisible,
 	onSubmissionSuccess,
 }) {
@@ -24,22 +23,22 @@ export default function EditEachBooking({
 	const [loading, setLoading] = useState("");
 	const [form] = Form.useForm();
 
-	useEffect(() => {
-		try {
-			getParticipantsAndBeverage().then((response) =>
-				setExistingMeal(response.data.bookings)
-			);
-		} catch (error) {
-			console.log("Error fetching participants and beverages.");
-		}
-	}, []);
+	// useEffect(() => {
+	// 	try {
+	// 		getParticipantsAndBeverage().then((response) =>
+	// 			setExistingMeal(response.data.bookings)
+	// 		);
+	// 	} catch (error) {
+	// 		console.log("Error fetching participants and beverages.");
+	// 	}
+	// }, []);
 
-	useEffect(
-		() => console.log("existing meal: ", existingMeal),
-		[existingMeal]
-	);
+	// useEffect(
+	// 	() => console.log("existing meal: ", existingMeal),
+	// 	[existingMeal]
+	// );
 
-	useEffect(() => console.log("filtered meal: ", filteredMeals), []);
+	// useEffect(() => console.log("filtered meal: ", filteredMeals), []);
 
 	const onRename = (e) => {
 		setTopicInputState(!topicInputState);
@@ -49,44 +48,40 @@ export default function EditEachBooking({
 		setEditedTopic(e.target.value); // Update editedTopic state based on input change
 	};
 
-	const filteredMeals = existingMeal?.filter(
-		(meal) => meal.booking_id === bookingId
-	);
+	// const filteredMeals = existingMeal?.filter(
+	// 	(meal) => meal.booking_id === bookingId
+	// );
 
-	const addMealChange = (index, field, value) => {
-		const updatedInputs = [...meal];
-		updatedInputs[index][field] = value;
-		setMeal(updatedInputs);
-	};
+	// const addMealChange = (index, field, value) => {
+	// 	const updatedInputs = [...meal];
+	// 	updatedInputs[index][field] = value;
+	// 	setMeal(updatedInputs);
+	// };
 
-	const addInput = () => {
-		setMeal([...meal, { name: "", drink: "" }]);
-	};
+	// const addInput = () => {
+	// 	setMeal([...meal, { name: "", drink: "" }]);
+	// };
 
-	const deleteInput = () => {
-		if (meal.length > 1) {
-			const updatedInputs = [...meal];
-			updatedInputs.pop(); // Remove the last item
-			setMeal(updatedInputs);
-		}
-	};
+	// const deleteInput = () => {
+	// 	if (meal.length > 1) {
+	// 		const updatedInputs = [...meal];
+	// 		updatedInputs.pop(); // Remove the last item
+	// 		setMeal(updatedInputs);
+	// 	}
+	// };
 
-	const onUpdateData = async (e) => {
+	const onSave = async (e) => {
+		setTopicInputState(!topicInputState);
 		setLoading(true);
 		try {
 			console.log("booking id: ", bookingId);
 			console.log("break meal: ", meal);
-			await insertParticipantsAndBeverages(
-				meal,
-				bookingId,
-				editedTopic,
-				true
-			)
+			await updateBookingTopic(editedTopic, bookingId)
 				.then((response) => {
 					const { success } = response.data;
 					if (success) {
-						setSuccessAlert(!successAlert);
-						setMeal([{ name: "", drink: "" }]);
+						// setSuccessAlert(!successAlert);
+						// setMeal([{ name: "", drink: "" }]);
 						setEditModalVisible(false);
 						setTimeout(() => {
 							onSubmissionSuccess();
@@ -107,16 +102,16 @@ export default function EditEachBooking({
 		}
 	};
 
-	const onSave = (e) => {
-		setTopicInputState(!topicInputState);
-		console.log("changed topic: ", editedTopic);
-	};
+	// const onSave = (e) => {
+	// 	setTopicInputState(!topicInputState);
+	// 	console.log("changed topic: ", editedTopic);
+	// };
 
 	return (
 		<>
 			<Spin spinning={loading} tip="Loading" size="large">
 				<div className="my-4">
-					<Form onFinish={onUpdateData} form={form} key={bookingId}>
+					<Form onFinish={onSave} form={form} key={bookingId}>
 						<Descriptions>
 							<Form.Item
 								className="flex flex-row mt-4 pl-2"
@@ -156,7 +151,7 @@ export default function EditEachBooking({
 							</Form.Item>
 						</Descriptions>
 
-						<div className="py-4 mt-4 font-semibold text-xl">
+						{/* <div className="py-4 mt-4 font-semibold text-xl">
 							Add Break
 						</div>
 
@@ -264,7 +259,7 @@ export default function EditEachBooking({
 								htmlType="submit">
 								Update Data
 							</Button>
-						</div>
+						</div> */}
 					</Form>
 				</div>
 			</Spin>

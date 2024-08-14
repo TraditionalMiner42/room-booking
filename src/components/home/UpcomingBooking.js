@@ -58,7 +58,10 @@ export default function UpcomingBooking({ selectedDate, bookings }) {
 
 	return (
 		<div className="p-10 pt-14 lg:w-2/3">
-			<div className="font-semibold text-2xl my-6">Upcoming Bookings</div>
+			<div className="flex items-end font-semibold text-2xl my-6">
+				Upcoming Bookings
+				<div className="text-lg ml-2 align-bottom">(7 days)</div>
+			</div>
 			<Spin spinning={loading} tip="loading" size="large">
 				<Collapse
 					className="bg-white shadow-md"
