@@ -161,7 +161,7 @@ export default function GenericForm({
 						</Select>
 					)}
 				</Form.Item>
-				<Form.Item className="ant-btn flex flex-col justify-between">
+				<Form.Item className="ant-btn flex flex-col items-center">
 					<Button className="mx-4" type="primary" htmlType="submit">
 						Submit
 					</Button>
