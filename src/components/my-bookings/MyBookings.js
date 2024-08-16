@@ -47,8 +47,6 @@ export default function MyBooking({ username, setUsername }) {
 	const fetchUserBookingData = async () => {
 		const token = localStorage.getItem("accessToken");
 
-		console.log("isToken: ", token);
-
 		if (token && (!submissionSuccess || submissionSuccess)) {
 			try {
 				const decoded = jwtDecode(token);
@@ -58,11 +56,9 @@ export default function MyBooking({ username, setUsername }) {
 				const userResponse = await fetchGetSignedInUser();
 				const user = userResponse.user;
 				setUsername(user);
-				// console.log("response user: ", user);
 
 				const bookings = await fetchUserBookings(user);
 				setUserBookings(bookings);
-				// console.log("Booking response: ", bookings);
 			} catch (error) {
 				console.log("Error fetching data:", error);
 			} finally {
@@ -75,27 +71,38 @@ export default function MyBooking({ username, setUsername }) {
 		const currentUrl = window.location.href; // Get the current URL
 		const bookingUrl = `${currentUrl}/${value}/meal-menu`; // Append booking path
 
-		navigator.clipboard
-			.writeText(bookingUrl)
-			.then(() => {
+		if (navigator.clipboard) {
+			// Modern method
+			navigator.clipboard
+				.writeText(bookingUrl)
+				.then(() => {
+					message.success("URL copied to clipboard!");
+				})
+				.catch((err) => {
+					message.error("Failed to copy URL!");
+					console.error("Error copying URL:", err);
+				});
+		} else {
+			// Fallback method
+			const textarea = document.createElement("textarea");
+			textarea.value = bookingUrl;
+			document.body.appendChild(textarea);
+			textarea.select();
+			try {
+				document.execCommand("copy");
 				message.success("URL copied to clipboard!");
-			})
-			.catch((err) => {
+			} catch (err) {
 				message.error("Failed to copy URL!");
 				console.error("Error copying URL:", err);
-			});
+			} finally {
+				document.body.removeChild(textarea);
+			}
+		}
 	};
 
 	useEffect(() => {
 		fetchUserBookingData();
-	}, [submissionSuccess]);
 
-	// useEffect(
-	// 	() => console.log("submission success?: ", submissionSuccess),
-	// 	[submissionSuccess]
-	// );
-
-	useEffect(() => {
 		const params = new URLSearchParams(location.search);
 		const value = params.get("submit");
 
@@ -103,7 +110,7 @@ export default function MyBooking({ username, setUsername }) {
 			navigate("/users/bookings", { replace: true });
 			setSuccessAlert(false);
 		}
-	}, [location, navigate, deleteModalVisible]);
+	}, [location, navigate, deleteModalVisible, submissionSuccess]);
 
 	return (
 		<>

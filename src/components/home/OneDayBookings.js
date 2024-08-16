@@ -74,9 +74,10 @@ export default function OneDayBooking({
 													<Card
 														hoverable={true}
 														style={{
-															cursor: "default",
-														}}>
-														<div className="py-2 font-bold">
+															padding: "0px",
+														}}
+														size="small">
+														<div className="p-2 font-bold">
 															{room.name}
 														</div>
 														{/* Display booking times for each room */}
@@ -86,10 +87,10 @@ export default function OneDayBooking({
 																index
 															) => (
 																<div
-																	className="flex justify-between items-center py-2"
+																	className="flex justify-between items-center p-2"
 																	key={index}>
 																	<div className="align-middle font-light flex-grow">
-																		<div className="py-2">
+																		<div className="">
 																			{
 																				booking.name
 																			}
@@ -117,12 +118,6 @@ export default function OneDayBooking({
 																				onClick={(
 																					e
 																				) => {
-																					console.log(
-																						booking
-																					);
-																					console.log(
-																						index
-																					);
 																					onDetailModal(
 																						e,
 																						room.room_id,
@@ -159,9 +154,11 @@ export default function OneDayBooking({
 															<Card
 																hoverable={true}
 																style={{
-																	cursor: "default",
-																}}>
-																<div className="flex justify-between items-center">
+																	padding:
+																		"0px",
+																}}
+																size="small">
+																<div className="flex justify-between items-center p-2">
 																	<div className="font-bold">
 																		{
 																			room.room_name

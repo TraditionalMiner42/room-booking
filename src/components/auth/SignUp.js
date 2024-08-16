@@ -1,9 +1,10 @@
-import { Button, Form, Input, Result, Select } from "antd";
+import { Button, Form, Input, Result, Select, message } from "antd";
 import Spin from "antd/es/spin/index.js";
 import "antd/es/spin/style/index.js";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getDivision, getSection, signUpUser } from "../../api/DataService.js";
+import { useErrorHandling } from "../error_handler/ErrorHandler.js";
 
 export default function SignUp() {
 	const [employeeId, setEmployeeId] = useState("");
@@ -16,7 +17,8 @@ export default function SignUp() {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(false);
+	const { error, handleError, clearError } = useErrorHandling();
+
 	const [successAlert, setSuccessAlert] = useState(false);
 	const navigate = useNavigate();
 	const [form] = Form.useForm();
@@ -31,7 +33,7 @@ export default function SignUp() {
 			setDivisions(divisionData.data.divisions);
 		} catch (error) {
 			if (error.message) {
-				setError(error.message);
+				message.error(`Error fetching data: ${error.message}`);
 			}
 		}
 	};
@@ -63,7 +65,7 @@ export default function SignUp() {
 			// Use a dummy password
 			return Promise.resolve();
 		} catch (err) {
-			if (err.message === "Username already exists") {
+			if (err.message) {
 				return Promise.reject("Username already exists");
 			}
 			return Promise.reject("Failed to validate username");
@@ -103,11 +105,12 @@ export default function SignUp() {
 					}
 				})
 				.catch((error) => {
-					console.error("Error signing up: ", error);
 					if (error.message === "Username already exists") {
-						setError("Username already exists");
+						handleError(error.message);
 					} else {
-						setError("Failed to sign up. Please try again.");
+						handleError(
+							`An error occurred during sign-up: ${error}`
+						);
 					}
 				})
 				.finally(() => setLoading(false));

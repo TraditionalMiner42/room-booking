@@ -1,5 +1,5 @@
 import axiosInstance from "../axiosInstance.js";
-import { Form, Input, Select, Button, TimePicker, Alert } from "antd";
+import { Form, Input, Select, Button, TimePicker, Alert, Space } from "antd";
 import { useEffect, useState } from "react";
 import moment from "moment";
 
@@ -17,10 +17,6 @@ export default function GenericForm({
 	setAlertMessage,
 }) {
 	const [rooms, setRooms] = useState([]);
-
-	console.log("userrrr: ", username);
-	console.log("booking date: ", selectedDate);
-	console.log("rooms : ", rooms);
 
 	useEffect(() => {
 		const fetchRooms = async () => {
@@ -58,7 +54,7 @@ export default function GenericForm({
 	return (
 		<>
 			<Form
-				className={`p-6`}
+				className={`px-6 pt-6`}
 				onFinish={handleSubmit}
 				form={form}
 				initialValues={initialFormData}
@@ -85,7 +81,7 @@ export default function GenericForm({
 					]}>
 					<Input
 						placeholder="name"
-						defaultValue={username}
+						value={username}
 						type="text"
 						required
 						disabled
@@ -114,10 +110,8 @@ export default function GenericForm({
 							message: "Please select booking time range!",
 						},
 					]}>
-					<Input.Group compact>
-						<Form.Item
-							className="mb-0 booking-time-pb:mb-6"
-							name="timeStart">
+					<Space>
+						<Form.Item className="mb-0" name="timeStart">
 							<TimePicker
 								defaultValue={moment("08:00", "HH:mm")}
 								placeholder="Start time"
@@ -137,7 +131,7 @@ export default function GenericForm({
 								required
 							/>
 						</Form.Item>
-					</Input.Group>
+					</Space>
 				</Form.Item>
 				<Form.Item
 					label={<p className="text-base">Select Room</p>}
@@ -174,7 +168,7 @@ export default function GenericForm({
 					{isModalForm ? (
 						<Button
 							className="mx-4"
-							type="primary"
+							type="default"
 							onClick={toPreviousMainModal}>
 							Back
 						</Button>

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.js";
-import { Alert, Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input, message } from "antd";
+import { useErrorHandling } from "../error_handler/ErrorHandler.js";
 
 export default function SignIn() {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
+	const { error, handleError, clearError } = useErrorHandling();
 	const navigate = useNavigate();
 	const { login } = useAuth();
 	const [form] = Form.useForm();
@@ -35,9 +36,9 @@ export default function SignIn() {
 			navigate("/");
 		} catch (error) {
 			if (error.message === "Invalid username or password") {
-				setError(error.message);
+				handleError(error.message);
 			} else {
-				setError("An error occurred during sign-in");
+				message.error(`An error occurred during sign-in: ${error}`);
 			}
 		}
 	};
@@ -99,7 +100,7 @@ export default function SignIn() {
 						<Alert
 							type="error"
 							message={error}
-							onClose={() => setError(null)}
+							onClose={() => handleError(null)}
 							closable>
 							{error}
 						</Alert>

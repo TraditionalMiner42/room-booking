@@ -21,10 +21,8 @@ export const AuthProvider = ({ children }) => {
 				token: token,
 			});
 		} catch (error) {
-			console.log(error.message);
-			if (error.message) {
-				throw Error(error.message);
-			}
+			console.error("Login error: ", error.message);
+			throw error; // Rethrow to be caught by handleSubmit
 		}
 	};
 
@@ -44,10 +42,6 @@ export const AuthProvider = ({ children }) => {
 	};
 
 	useEffect(() => {
-		console.log("Auth state on mount:", {
-			isAuthenticated: checkAuth(),
-			token: localStorage.getItem("accessToken"),
-		});
 		// Initialize authentication state
 		setAuthState({
 			isAuthenticated: checkAuth(),

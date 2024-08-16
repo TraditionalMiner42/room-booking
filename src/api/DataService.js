@@ -5,9 +5,13 @@ const getSection = async () => {
 		const response = await axiosInstance.get("/users/get_sections");
 		return response;
 	} catch (error) {
-		if (error.response.status === 400) {
-			throw new Error("Failed to get section data");
+		if (error.response) {
+			throw new Error(
+				error.response.data.message || "Failed to get division data"
+			);
 		}
+		// Handle network errors or unexpected errors
+		throw new Error("Network or server error");
 	}
 };
 
@@ -16,9 +20,13 @@ const getDivision = async () => {
 		const response = await axiosInstance.get("/users/get_divisions");
 		return response;
 	} catch (error) {
-		if (error.response.status === 400) {
-			throw new Error("Failed to get division data");
+		if (error.response) {
+			throw new Error(
+				error.response.data.message || "Failed to get division data"
+			);
 		}
+		// Handle network errors or unexpected errors
+		throw new Error("Network or server error");
 	}
 };
 
@@ -47,19 +55,13 @@ const signInCurrentUser = async (username, password) => {
 		// Check if the error has a response object
 		if (error.response) {
 			if (error.response.status === 400) {
-				throw new Error("Invalid username or password");
-			} else {
 				throw new Error(
-					`Sign-in failed with status code ${error.response.status}`
+					error.response.data.message ||
+						"Invalid username or password"
 				);
 			}
-		} else if (error.request) {
-			// The request was made but no response was received
-			throw new Error("No response received from the server");
-		} else {
-			// Something happened in setting up the request
-			throw new Error(`Error in request setup: ${error.message}`);
 		}
+		throw new Error("Failed to sign in");
 	}
 };
 
@@ -95,7 +97,9 @@ const signUpUser = async (
 	} catch (error) {
 		if (error.response && error.response.status === 409) {
 			// Handle 409 conflict error for existing username
-			throw new Error("Username already exists");
+			throw new Error(
+				error.response.data.message || "Username already exists"
+			);
 		}
 		throw new Error("Failed to sign up");
 	}
@@ -104,22 +108,18 @@ const signUpUser = async (
 const fetchGetRooms = async () => {
 	try {
 		const response = await axiosInstance.get("/users/get_rooms");
-		console.log("Rooms response:", response.data.rooms); // Check response data
 		return response.data.rooms;
 	} catch (error) {
-		console.error("Error fetching rooms: ", error);
-		throw error;
+		throw new Error("Failed to fetch rooms");
 	}
 };
 
 const fetchGetBookings = async () => {
 	try {
 		const response = await axiosInstance.get("/users/get_bookings");
-		console.log(response.data.bookings);
 		return response.data.bookings;
 	} catch (error) {
-		console.error("Error fetching bookings: ", error);
-		throw error;
+		throw new Error("Failed to fetch bookings");
 	}
 };
 
@@ -183,11 +183,9 @@ const insertParticipantsAndBeverages = async (meal, bookingId) => {
 		});
 		return response;
 	} catch (error) {
-		console.log(
-			"Error insert participants and beverages to particular booking: ",
-			error
+		throw new Error(
+			"Error insert participants and beverages of the booking"
 		);
-		throw error;
 	}
 };
 
@@ -196,11 +194,7 @@ const getParticipantsAndBeverage = async () => {
 		const response = await axiosInstance.get("/users/get_break_details");
 		return response;
 	} catch (error) {
-		console.log(
-			"Error get participants and beverages of particular booking: ",
-			error
-		);
-		throw error;
+		throw new Error("Error get participants and beverages of the booking");
 	}
 };
 

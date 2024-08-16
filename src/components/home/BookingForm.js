@@ -3,8 +3,9 @@ import axiosInstance from "../../axiosInstance.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import GenericForm from "../GenericForm.js";
-import { Form, Result, Spin } from "antd";
+import { Form, Result, Spin, message } from "antd";
 import { fetchPostForm } from "../../api/DataService.js";
+import { useErrorHandling } from "../error_handler/ErrorHandler.js";
 
 export default function BookingForm({
 	isModalForm,
@@ -29,8 +30,8 @@ export default function BookingForm({
 
 	const [isSubmitted, setIsSubmitted] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const { error, handleError, clearError } = useErrorHandling();
 	const [alertMessage, setAlertMessage] = useState(false);
-
 	const [form] = Form.useForm();
 
 	useEffect(() => {
@@ -47,7 +48,7 @@ export default function BookingForm({
 				// console.log("Rooms response:", response.data.rooms); // Check response data
 				setRooms(response.data.rooms);
 			} catch (error) {
-				console.error("Error fetching rooms:", error);
+				message.error(`Error fetching rooms: ${error}`);
 			}
 		};
 

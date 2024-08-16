@@ -1,9 +1,12 @@
-import { Spin, Form, Input, Button, Result } from "antd";
+import { Spin, Form, Input, Button, Result, Descriptions } from "antd";
 import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { insertParticipantsAndBeverages } from "../../api/DataService.js";
-import { createPortal } from "react-dom";
+import {
+	getParticipantsAndBeverage,
+	insertParticipantsAndBeverages,
+} from "../../api/DataService.js";
+import moment from "moment";
 
 export function MealMenu() {
 	const [meal, setMeal] = useState([{ name: "", drink: "" }]);
@@ -14,9 +17,46 @@ export function MealMenu() {
 	const { value } = useParams();
 	const [form] = Form.useForm();
 
-	const filteredMeals = existingMeal?.filter(
-		(meal) => meal.booking_id === value
-	);
+	useEffect(() => {
+		try {
+			getParticipantsAndBeverage().then((response) =>
+				setExistingMeal(response.data.bookings)
+			);
+		} catch (error) {
+			console.log("Error fetching participants and beverages.");
+		}
+	}, []);
+
+	const filteredBookingInfo = existingMeal?.reduce((acc, meal) => {
+		if (meal.booking_id === Number(value)) {
+			acc = [
+				{ label: "Topic", value: meal.topic },
+				{
+					label: "Date",
+					value: moment(meal.booking_date).format("DD-MM-YYYY"),
+				},
+				{
+					label: "Time",
+					value: `${moment(meal.booking_start_time, "HH:mm").format(
+						"HH:mm"
+					)} - ${moment(meal.booking_end_time, "HH:mm").format(
+						"HH:mm"
+					)}`,
+				},
+				{ label: "Room Name", value: meal.room_name },
+			];
+		}
+		return acc;
+	}, []);
+
+	const remainingBookingInfo = filteredBookingInfo?.slice(1) || [];
+
+	const filteredMeals = existingMeal?.filter((meal) => {
+		return meal.booking_id === Number(value);
+	});
+
+	console.log("existing meal: ", existingMeal);
+	console.log("filtered booking info: ", filteredBookingInfo);
 
 	const addMealChange = (index, field, value) => {
 		const updatedInputs = [...meal];
@@ -77,6 +117,21 @@ export function MealMenu() {
 								onFinish={onUpdateData}
 								form={form}
 								key={value}>
+								<div className="font-semibold text-xl pb-5">
+									{filteredBookingInfo?.[0]?.value}
+								</div>
+
+								<Descriptions column={2}>
+									{remainingBookingInfo?.map(
+										(item, index) => (
+											<Descriptions.Item
+												key={index}
+												label={item.label}>
+												{item.value}
+											</Descriptions.Item>
+										)
+									)}
+								</Descriptions>
 								<div className="py-4 mt-4 font-semibold text-xl">
 									Add Break
 								</div>

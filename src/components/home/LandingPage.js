@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
-import { Badge, Calendar, Modal, Spin } from "antd";
+import { Badge, Calendar, Modal, Spin, message } from "antd";
 import HomeForm from "./HomeForm.js";
 import UpcomingBooking from "./UpcomingBooking.js";
 import { jwtDecode } from "jwt-decode";
@@ -14,6 +14,7 @@ import EachBooking from "./EachBooking.js";
 import OneDayBooking from "./OneDayBookings.js";
 import BookingForm from "./BookingForm.js";
 import { createPortal } from "react-dom";
+import { useErrorHandling } from "../error_handler/ErrorHandler.js";
 
 function LandingPage({ isModalForm, username, setUsername }) {
 	const [rooms, setRooms] = useState([]);
@@ -22,6 +23,7 @@ function LandingPage({ isModalForm, username, setUsername }) {
 	const [selectedDate, setSelectedDate] = useState(null);
 	const [selectedRoomId, setSelectedRoomId] = useState(null);
 	const [selectedRoomName, setSelectedRoomName] = useState(null);
+	const { error, handleError, clearError } = useErrorHandling();
 
 	const [mainModalVisible, setMainModalVisible] = useState(false);
 	const [subModalVisible, setSubModalVisible] = useState(false);
@@ -39,10 +41,8 @@ function LandingPage({ isModalForm, username, setUsername }) {
 	useEffect(() => {
 		const params = new URLSearchParams(location.search);
 		const value = params.get("submit");
-		console.log("submit value: ", value);
 
 		if (value === "success") {
-			console.log("success: ", value);
 			// Clear the URL parameter after processing
 			navigate("/", { replace: true });
 		}
@@ -60,38 +60,47 @@ function LandingPage({ isModalForm, username, setUsername }) {
 	};
 
 	useEffect(() => {
-		const token = localStorage.getItem("accessToken");
-		console.log("token: ", token);
-		if (token) {
-			if (isTokenExpired(token)) {
-				console.log("Token expired.");
-				navigate("/users/signin", { replace: true });
-				return;
+		const fetchData = async () => {
+			clearError(); // Clear previous errors
+			setLoading(true); // Start loading state
+
+			try {
+				const token = localStorage.getItem("accessToken");
+				if (token) {
+					if (isTokenExpired(token)) {
+						handleError("Token expired.");
+						navigate("/users/signin", { replace: true });
+						return;
+					}
+
+					const decoded = jwtDecode(token);
+					setUsername(decoded.username);
+
+					try {
+						const [roomData, bookingData] = await Promise.all([
+							fetchGetRooms(),
+							fetchGetBookings(),
+						]);
+						setRooms(roomData);
+						setBookings(bookingData);
+					} catch (error) {
+						console.error(
+							"An error occurred while fetching data: ",
+							error
+						);
+					}
+				} else {
+					console.error("No token found.");
+				}
+			} catch (error) {
+				console.error("An unexpected error occurred.");
+			} finally {
+				setLoading(false); // Ensure loading state is handled
 			}
-			const decoded = jwtDecode(token);
-			setUsername(decoded.username);
+		};
 
-			fetchGetRooms().then((data) => setRooms(data));
-			fetchGetBookings().then((data) => {
-				setBookings(data);
-			});
-		} else {
-			console.log("No token found.");
-		}
-	}, []);
-
-	// useEffect(() => {
-	// 	const fetchUser = async () => {
-	// 		try {
-	// 			const response = await getCurrentSignInUser(username);
-	// 			setFullName(response.data.users);
-	// 		} catch (error) {
-	// 			console.error("Error fetching user: ", error);
-	// 		}
-	// 	};
-
-	// 	fetchUser();
-	// }, [username]);
+		fetchData();
+	}, [navigate]); // Ensure dependencies are correct
 
 	useEffect(() => {
 		if (submissionSuccess) {
@@ -103,7 +112,6 @@ function LandingPage({ isModalForm, username, setUsername }) {
 
 	const handleDateSelect = (date) => {
 		const formatDate = date.format("YYYY-MM-DD");
-		console.log("formatted date: ", formatDate);
 		setSelectedDate(formatDate);
 		setMainModalVisible(true);
 	};
@@ -292,7 +300,6 @@ function LandingPage({ isModalForm, username, setUsername }) {
 						cellRender={dateCellRender}
 						onSelect={(date, { source }) => {
 							if (source === "date") {
-								console.log("Date: ", date);
 								handleDateSelect(date);
 							}
 						}}></Calendar>
@@ -312,7 +319,6 @@ function LandingPage({ isModalForm, username, setUsername }) {
 				onSubModal={onSubModal}
 			/>
 
-			{/* {console.log("selected booking: ", selectedBooking)} */}
 			<div id="detail-modal"></div>
 			{filteredBookings.map(
 				(booking, index) =>

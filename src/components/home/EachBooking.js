@@ -1,4 +1,4 @@
-import { Button, Col, Descriptions, Row } from "antd";
+import { Button, Descriptions } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -38,7 +38,7 @@ export default function EachBooking({
 				setBookings(response.data.bookings);
 			});
 		} catch (error) {
-			console.log("Error fetching participants and beverages.");
+			console.error(error.message);
 		}
 	}, []);
 
@@ -48,10 +48,6 @@ export default function EachBooking({
 		filteredBookings = bookings.filter((booking) => {
 			return booking.booking_id === selectedBooking.booking_id;
 		});
-		console.log(filteredBookings);
-		console.log(selectedBooking);
-	} else {
-		console.log("Bookings or selectedBooking is not available yet.");
 	}
 
 	var callAddFont = function () {
@@ -126,11 +122,9 @@ export default function EachBooking({
 			</Descriptions>
 
 			<div className="ant-btn mt-8 flex flex-row justify-between">
-				<Button className="flex" type="primary">
+				<Button className="flex" type="primary" onClick={generatePDF}>
 					<div className="mr-1">Download</div>
-					<DownloadOutlined
-						className="antd-icon"
-						onClick={generatePDF}></DownloadOutlined>
+					<DownloadOutlined className="antd-icon"></DownloadOutlined>
 				</Button>
 
 				{showBackButton && (
