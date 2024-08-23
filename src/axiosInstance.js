@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance for API request
 const axiosInstance = axios.create({
-	baseURL: "http://192.168.201.142:4000/",
+	baseURL: `http://192.168.201.168:4000/`,
 	headers: {
 		"Content-Type": "application/json",
 	},
@@ -26,6 +26,7 @@ axiosInstance.interceptors.request.use(
 		if (typeof error.response === "undefined") {
 			console.log("network error");
 		} else {
+			console.log(error.response.data);
 			return Promise.reject(error);
 		}
 	}

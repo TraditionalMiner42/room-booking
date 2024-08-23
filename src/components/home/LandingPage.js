@@ -110,6 +110,8 @@ function LandingPage({ isModalForm, username, setUsername }) {
 		setLoading(false);
 	}, [submissionSuccess]);
 
+	useEffect(() => console.log(bookings), [bookings]);
+
 	const handleDateSelect = (date) => {
 		const formatDate = date.format("YYYY-MM-DD");
 		setSelectedDate(formatDate);

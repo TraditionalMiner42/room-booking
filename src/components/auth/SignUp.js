@@ -23,12 +23,14 @@ export default function SignUp() {
 	const navigate = useNavigate();
 	const [form] = Form.useForm();
 
+	// Function to get sections/divisions data
 	const fetchSectionDivision = async () => {
 		try {
 			const [sectionData, divisionData] = await Promise.all([
 				getSection(),
 				getDivision(),
 			]);
+			// Set State for sections/divisions
 			setSections(sectionData.data.sections);
 			setDivisions(divisionData.data.divisions);
 		} catch (error) {

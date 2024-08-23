@@ -57,7 +57,6 @@ export default function BookingForm({
 	}, []);
 
 	useEffect(() => {
-		// console.log("user: ", username);
 		form.setFieldValue("name", username);
 	});
 

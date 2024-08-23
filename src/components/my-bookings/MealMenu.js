@@ -1,16 +1,28 @@
-import { Spin, Form, Input, Button, Result, Descriptions } from "antd";
+import {
+	Spin,
+	Form,
+	Input,
+	Button,
+	Result,
+	Descriptions,
+	Menu,
+	Select,
+	message,
+} from "antd";
 import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
 	getParticipantsAndBeverage,
+	getShopMenu,
 	insertParticipantsAndBeverages,
 } from "../../api/DataService.js";
 import moment from "moment";
 
 export function MealMenu() {
-	const [meal, setMeal] = useState([{ name: "", drink: "" }]);
+	const [meal, setMeal] = useState([{ name: "", drink: "", remark: "" }]);
 	const [existingMeal, setExistingMeal] = useState(null);
+	const [menu, setMenu] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [successAlert, setSuccessAlert] = useState(false);
 	const [error, setError] = useState(false);
@@ -18,19 +30,54 @@ export function MealMenu() {
 	const [form] = Form.useForm();
 
 	useEffect(() => {
-		try {
-			getParticipantsAndBeverage().then((response) =>
-				setExistingMeal(response.data.bookings)
-			);
-		} catch (error) {
-			console.log("Error fetching participants and beverages.");
-		}
+		const fetchData = async () => {
+			const [mealResponse, menuResponse] = await Promise.all([
+				getParticipantsAndBeverage(),
+				getShopMenu(),
+			]);
+			setExistingMeal(mealResponse.data.bookings);
+			setMenu(menuResponse.data.cafe_menu);
+		};
+
+		fetchData();
 	}, []);
+
+	// useEffect(() => {
+	// 	const fetchMeal = async () => {
+	// 		try {
+	// 			getParticipantsAndBeverage().then((mealResponse) => {
+	// 				setExistingMeal(mealResponse.data.bookings);
+	// 			});
+	// 		} catch (error) {
+	// 			console.log("Error fetching participants and beverages.");
+	// 		}
+	// 	};
+
+	// 	fetchMeal();
+	// }, []);
+
+	// useEffect(() => {
+	// 	try {
+	// 		getShopMenu().then((menuResponse) => {
+	// 			setMenu(menuResponse.data.cafe_menu);
+	// 		});
+	// 	} catch (error) {
+	// 		setError(error.response.data.message);
+	// 	}
+	// }, []);
+
+	console.log("menu: ", menu);
+	console.log("meal: ", existingMeal);
+
+	// useEffect(() => {
+	// 	return getShopMenu().then((res) => console.log(res));
+	// }, []);
 
 	const filteredBookingInfo = existingMeal?.reduce((acc, meal) => {
 		if (meal.booking_id === Number(value)) {
 			acc = [
 				{ label: "Topic", value: meal.topic },
+				{ label: "Shop ID", value: meal.shop_id },
 				{
 					label: "Date",
 					value: moment(meal.booking_date).format("DD-MM-YYYY"),
@@ -44,19 +91,36 @@ export function MealMenu() {
 					)}`,
 				},
 				{ label: "Room Name", value: meal.room_name },
+				{ label: "Selected Shop", value: meal.shop_name },
 			];
 		}
 		return acc;
 	}, []);
 
-	const remainingBookingInfo = filteredBookingInfo?.slice(1) || [];
+	const remainingBookingInfo = filteredBookingInfo?.slice(2) || [];
+
+	console.log("bookinginfo: ", filteredBookingInfo);
+
+	const filteredMenusByShop = filteredBookingInfo?.map((meal) => {
+		return menu.filter((shop) => {
+			return shop.shop_id === meal.value;
+		});
+	});
+
+	console.log("filtered menu: ", filteredMenusByShop);
+
+	// Remove empty objects from the filtered array
+	const nonEmptyFilteredMenusByShop = filteredMenusByShop?.filter((shop) => {
+		return Object.keys(shop).length > 0; // Keep only objects with properties
+	});
 
 	const filteredMeals = existingMeal?.filter((meal) => {
 		return meal.booking_id === Number(value);
 	});
+	console.log("menus: ", nonEmptyFilteredMenusByShop);
 
-	console.log("existing meal: ", existingMeal);
-	console.log("filtered booking info: ", filteredBookingInfo);
+	// console.log("existing meal: ", existingMeal);
+	// console.log("filtered booking info: ", filteredBookingInfo);
 
 	const addMealChange = (index, field, value) => {
 		const updatedInputs = [...meal];
@@ -65,7 +129,7 @@ export function MealMenu() {
 	};
 
 	const addInput = () => {
-		setMeal([...meal, { name: "", drink: "" }]);
+		setMeal([...meal, { name: "", drink: "", remark: "" }]);
 	};
 
 	const deleteInput = () => {
@@ -78,27 +142,26 @@ export function MealMenu() {
 
 	const onUpdateData = async () => {
 		setLoading(true);
-		try {
-			await insertParticipantsAndBeverages(meal, value, null, true)
-				.then((response) => {
-					const { success } = response.data;
-					if (success) {
-						setSuccessAlert(!successAlert);
-						setMeal([{ name: "", drink: "" }]);
-						setTimeout(() => {
-							window.location.reload();
-						}, 1000);
-					}
-				})
-				.catch((error) => {
-					if (error.response.status === 500) {
-						setError(error.response.data.message);
-					}
-				})
-				.finally(() => {
-					setLoading(false);
-				});
-		} catch (error) {}
+		// console.log(meal);
+		await insertParticipantsAndBeverages(meal, value, null, true)
+			.then((response) => {
+				const { success } = response.data;
+				if (success) {
+					setSuccessAlert(!successAlert);
+					setMeal([{ name: "", drink: "", remark: "" }]);
+					setTimeout(() => {
+						window.location.reload();
+					}, 1000);
+				}
+			})
+			.catch((error) => {
+				if (error.response.status === 500) {
+					message.error(error.response.data.message, 0);
+				}
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	};
 
 	return (
@@ -136,31 +199,44 @@ export function MealMenu() {
 									Add Break
 								</div>
 
-								<div className="grid grid-cols-2 gap-4 mb-4">
-									<div className="font-bold text-left">
-										Name
-									</div>
-									<div className="font-bold text-left">
+								<div className="flex space-x-4 items-center gap-4 mb-4">
+									<div className="font-bold flex-1">Name</div>
+									<div className="font-bold flex-1">
 										Drink
+									</div>
+									<div className="font-bold flex-1">
+										Remark
 									</div>
 								</div>
 								{filteredMeals?.map((mealItem, index) => (
 									<div
 										key={index}
-										className="grid grid-cols-2 gap-4 mb-4">
-										<div className="text-left">
+										className="flex space-x-4 items-center gap-4 mb-4">
+										<div className="flex-1">
 											{mealItem.participant_name}
 										</div>
-										<div className="text-left">
+										<div className="flex-1">
 											{mealItem.beverage}
+										</div>
+										<div className="flex-1">
+											{mealItem.participant_name &&
+											mealItem.beverage &&
+											mealItem.remark
+												? mealItem.remark
+												: mealItem.participant_name &&
+												  mealItem.beverage &&
+												  !mealItem.remark &&
+												  "-"}
 										</div>
 									</div>
 								))}
 
-								<div className="max-h-96 overflow-y-auto">
+								<div className="max-h-96 w-full overflow-y-auto">
 									{meal.map((mealItem, index) => (
-										<div key={index} className="flex">
-											<div className="flex flex-col flex-1 mr-4">
+										<div
+											key={index}
+											className="flex space-x-4 items-center">
+											<div className="flex-1">
 												<Form.Item
 													name={`name-${index}`}
 													rules={[
@@ -184,7 +260,7 @@ export function MealMenu() {
 													/>
 												</Form.Item>
 											</div>
-											<div className="flex flex-col flex-1">
+											<div className="flex-1">
 												<Form.Item
 													name={`drink-${index}`}
 													rules={[
@@ -194,7 +270,7 @@ export function MealMenu() {
 																"Please input the drink.",
 														},
 													]}>
-													<Input
+													{/* <Input
 														placeholder="Drink"
 														className="border rounded-md"
 														value={mealItem.drink}
@@ -202,6 +278,49 @@ export function MealMenu() {
 															addMealChange(
 																index,
 																"drink",
+																e.target.value
+															)
+														}
+													/> */}
+
+													<Select
+														placeholder="Drink"
+														onChange={(value) =>
+															addMealChange(
+																index,
+																"drink",
+																value
+															)
+														}>
+														{nonEmptyFilteredMenusByShop?.[0].map(
+															(menu) => (
+																<Select.Option
+																	key={
+																		menu.menu_id
+																	}
+																	value={
+																		menu.menu_name
+																	}>
+																	{
+																		menu.menu_name
+																	}
+																</Select.Option>
+															)
+														)}
+													</Select>
+												</Form.Item>
+											</div>
+											<div className="flex-1">
+												<Form.Item
+													name={`remark-${index}`}>
+													<Input
+														placeholder="Remark"
+														className="border rounded-md"
+														value={mealItem.remark}
+														onChange={(e) =>
+															addMealChange(
+																index,
+																"remark",
 																e.target.value
 															)
 														}

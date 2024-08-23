@@ -114,6 +114,16 @@ const fetchGetRooms = async () => {
 	}
 };
 
+const getShopMenu = async () => {
+	try {
+		const response = await axiosInstance.get("/users/shop_menu");
+		console.log(response);
+		return response;
+	} catch (error) {
+		throw new Error("Failed to fetch shops");
+	}
+};
+
 const fetchGetBookings = async () => {
 	try {
 		const response = await axiosInstance.get("/users/get_bookings");
@@ -217,6 +227,7 @@ export {
 	signInCurrentUser,
 	signUpUser,
 	fetchGetRooms,
+	getShopMenu,
 	fetchGetBookings,
 	fetchPostForm,
 	fetchGetSignedInUser,
